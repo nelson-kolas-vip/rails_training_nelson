@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get "counter/show"
+  get "counter/increment"
   get "homepage/index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
@@ -15,5 +17,11 @@ Rails.application.routes.draw do
 
   root to: redirect("/homepage")
   get 'homepage', to: 'homepage#index'
+
+  get 'count', to: "counter#show"
+  post 'count/increment', to: 'counter#increment', as: 'increment_count'
+
+  get 'count/reset', to: 'counter#reset', as: 'reset_count'
+
 
 end
