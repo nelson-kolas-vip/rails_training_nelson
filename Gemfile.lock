@@ -102,6 +102,9 @@ GEM
       irb (~> 1.10)
       reline (>= 0.3.8)
     dotenv (3.1.8)
+    dotenv-rails (3.1.8)
+      dotenv (= 3.1.8)
+      railties (>= 6.1)
     drb (2.2.3)
     ed25519 (1.4.0)
     erb (5.0.1)
@@ -113,6 +116,15 @@ GEM
       raabro (~> 1.4)
     globalid (1.2.1)
       activesupport (>= 6.1)
+    haml (6.3.0)
+      temple (>= 0.8.2)
+      thor
+      tilt
+    haml-rails (2.1.0)
+      actionpack (>= 5.1)
+      activesupport (>= 5.1)
+      haml (>= 4.0.6)
+      railties (>= 5.1)
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     importmap-rails (2.1.0)
@@ -187,6 +199,7 @@ GEM
     parser (3.3.8.0)
       ast (~> 2.4.1)
       racc
+    pg (1.5.9)
     pp (0.6.2)
       prettyprint
     prettyprint (0.2.0)
@@ -303,12 +316,6 @@ GEM
       fugit (~> 1.11.0)
       railties (>= 7.1)
       thor (~> 1.3.1)
-    sqlite3 (2.7.1-aarch64-linux-gnu)
-    sqlite3 (2.7.1-aarch64-linux-musl)
-    sqlite3 (2.7.1-arm-linux-gnu)
-    sqlite3 (2.7.1-arm-linux-musl)
-    sqlite3 (2.7.1-x86_64-linux-gnu)
-    sqlite3 (2.7.1-x86_64-linux-musl)
     sshkit (1.24.0)
       base64
       logger
@@ -319,10 +326,12 @@ GEM
     stimulus-rails (1.3.4)
       railties (>= 6.0.0)
     stringio (3.1.7)
+    temple (0.10.3)
     thor (1.3.2)
     thruster (0.1.14)
     thruster (0.1.14-aarch64-linux)
     thruster (0.1.14-x86_64-linux)
+    tilt (2.6.0)
     timeout (0.4.3)
     turbo-rails (2.0.16)
       actionpack (>= 7.1.0)
@@ -363,9 +372,12 @@ DEPENDENCIES
   brakeman
   capybara
   debug
+  dotenv-rails
+  haml-rails
   importmap-rails
   jbuilder
   kamal
+  pg
   propshaft
   puma (>= 5.0)
   rails (~> 8.0.2)
@@ -374,7 +386,6 @@ DEPENDENCIES
   solid_cable
   solid_cache
   solid_queue
-  sqlite3 (>= 2.1)
   stimulus-rails
   thruster
   turbo-rails
