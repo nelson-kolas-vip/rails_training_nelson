@@ -1,0 +1,11 @@
+.container.mt-5.text-center
+  %h1 Page Counter
+  %p.lead
+    You have clicked the button
+    %strong= @count
+    times.
+  = form_with url: increment_count_path, method: :post do
+    = submit_tag "+1", class: "btn btn-success btn-lg mt-3"
+  = link_to "Reset", reset_count_path, class: "btn btn-danger btn-lg mt-3 ms-3"
+  %br/
+  = link_to "homepage", homepage_path
