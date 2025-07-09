@@ -1,0 +1,39 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">RailsApp 🚀</a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+      aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse justify-content-end" id="navbarContent">
+      <ul class="navbar-nav mb-2 mb-lg-0">
+
+        <% if logged_in? %>
+          <li class="nav-item">
+            <span class="navbar-text me-3 text-white">
+              👋 Welcome, <%= current_user.first_name %>!
+            </span>
+          </li>
+          <li class="nav-item">
+            <%= button_to "Logout", logout_path, method: :delete, class: "btn btn-outline-light" %>
+          </li>
+        <% else %>
+          <li class="nav-item me-2">
+            <%= link_to "Register", signup_path, class: "btn btn-success" %>
+          </li>
+          <li class="nav-item">
+            <%= link_to "Login", login_path, class: "btn btn-primary" %>
+          </li>
+        <% end %>
+
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-5 text-center">
+  <h1 class="text-primary">Ruby on Rails By Nelson!!</h1>
+  <p class="lead">This is the homepage.</p>
+</div>
