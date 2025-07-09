@@ -1,8 +1,108 @@
-# Omakase Ruby styling for Rails
-inherit_gem: { rubocop-rails-omakase: rubocop.yml }
+inherit_from: .rubocop_todo.yml
 
-# Overwrite or add rules to create your own house style
-#
-# # Use `[a, [b, c]]` not `[ a, [ b, c ] ]`
-# Layout/SpaceInsideArrayLiteralBrackets:
-#   Enabled: false
+# .rubocop.yml
+
+# Ensures correct indentation on assignment statements
+Layout/AssignmentIndentation:
+  Enabled: true
+
+# Ensures comments are aligned properly
+Layout/CommentIndentation:
+  Enabled: true
+
+# Checks for two or more consecutive blank lines
+Layout/EmptyLines:
+  Enabled: true
+
+# Ensures an empty line between method definitions
+Layout/EmptyLineBetweenDefs:
+  Enabled: true
+
+# Ensures consistent indentation for hash elements
+Layout/FirstHashElementIndentation:
+  Enabled: true
+  EnforcedStyle: consistent
+
+# Ensures consistent use of indentation
+Layout/IndentationConsistency:
+  Enabled: true
+  EnforcedStyle: normal
+
+# Checks that the indentation style is spaces or tabs
+Layout/IndentationStyle:
+  Enabled: true
+  EnforcedStyle: spaces
+
+# Ensures correct number of spaces used for indentation
+Layout/IndentationWidth:
+  Enabled: true
+  Width: 2
+
+# Ensures rescue/ensure is aligned with begin
+Layout/RescueEnsureAlignment:
+  Enabled: true
+
+# Ensures space around block parameters (|x, y|)
+Layout/SpaceAroundBlockParameters:
+  Enabled: true
+
+# Ensures a space before opening braces of blocks
+Layout/SpaceBeforeBlockBraces:
+  Enabled: true
+
+# Ensures spaces inside block braces: `{ |x| x }`
+Layout/SpaceInsideBlockBraces:
+  Enabled: true
+
+# Ensures spaces inside hash literal braces: `{ key: "value" }`
+Layout/SpaceInsideHashLiteralBraces:
+  Enabled: true
+
+# Requires parentheses when calling methods with arguments
+Lint/RequireParentheses:
+  Enabled: true
+
+# Ensures there's no trailing whitespace at the end of lines
+Layout/TrailingWhitespace:
+  Enabled: true
+
+# Ensures identifiers are all ASCII characters
+Naming/AsciiIdentifiers:
+  Enabled: true
+
+# Enforces CamelCase for class and module names
+Naming/ClassAndModuleCamelCase:
+  Enabled: true
+
+# Ensures file name matches class or module name
+Naming/FileName:
+  Enabled: true
+
+# Enforces snake_case method names
+Naming/MethodName:
+  Enabled: true
+
+# Enforces predicate methods end in `?`
+Naming/PredicateName:
+  Enabled: true
+
+# Enforces snake_case variable names
+Naming/VariableName:
+  Enabled: true
+
+# Disallows use of `and`/`or`; use `&&`/`||` instead
+Style/AndOr:
+  Enabled: true
+
+# Enforces `{}` for single-line blocks, `do...end` for multi-line
+Style/BlockDelimiters:
+  Enabled: true
+
+# Enforces Ruby 1.9+ hash syntax: `{ key: "value" }`
+Style/HashSyntax:
+  Enabled: true
+  EnforcedStyle: ruby19
+
+# Enforces underscores in large numbers: `1_000_000`
+Style/NumericLiterals:
+  Enabled: true
