@@ -1,26 +1,23 @@
 class SessionsController < ApplicationController
-  # This just renders the login form
   def new
   end
 
-  # This handles the login logic
   def create
     user = User.find_by(email: params[:email])
-
-    if user && user.authenticate(params[:password])
+    if user&.authenticate(params[:password])
       session[:user_id] = user.id
-      puts "User Logged In: #{user.email}"
-      puts user.authenticate(params[:password]) if user
-      redirect_to homepage_path, notice: "Logged in successfully!"
+      flash[:notice] = "Signed in successfully!"
+      puts "User Logging: #{user.email}" # Debugging line to check user ID
+      redirect_to homepage_path
     else
-      flash.now[:alert] = "Invalid email or password"
+      flash.now[:alert] = "Invalid email or password."
       render :new
     end
   end
 
-  # This handles the logout logic
   def destroy
     session.delete(:user_id)
-    redirect_to login_path, notice: "Logged out successfully!"
+    flash[:notice] = "Signed out successfully!"
+    redirect_to root_path
   end
 end

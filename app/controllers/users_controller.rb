@@ -1,15 +1,23 @@
 class UsersController < ApplicationController
   def new
     @user = User.new
+    puts "New User Form Rendered"
+  end
+
+  def create
+    @user = User.new(user_params)
     if @user.save
-      flash[:notice] = "Account created successfully."
-      redirect_to homepage_path
+      flash[:success] = "Registration successful! Please sign in."
+      puts "User Created #{@user.email}"
+      redirect_to sign_in_path
     else
       render :new
     end
   end
 
-  private def user_params
-    params.require(:user).permit(:first_name, :last_name, :email, :password, :password_confirmation, :age, :date_of_birth)
+  private
+
+  def user_params
+    params.require(:user).permit(:email, :password, :password_confirmation, :first_name, :last_name, :age, :date_of_birth, :phone_number)
   end
 end
