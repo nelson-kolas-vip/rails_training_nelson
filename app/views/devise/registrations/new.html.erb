@@ -4,11 +4,12 @@
       <div class="card shadow-sm">
         <div class="card-body">
           <h2 class="mb-4 text-center text-success">Sign Up</h2>
-          <%= form_for @user, url: create_user_path do |f| %>
-            <% if @user.errors.any? %>
+
+          <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+            <% if resource.errors.any? %>
               <div class="alert alert-danger">
                 <ul class="mb-0">
-                  <% @user.errors.full_messages.each do |msg| %>
+                  <% resource.errors.full_messages.each do |msg| %>
                     <li><%= msg %></li>
                   <% end %>
                 </ul>
@@ -70,7 +71,7 @@
 
           <p class="mt-3 text-center">
             Already have an account?
-            <%= link_to "Sign In", sign_in_path, class: "link-success" %>
+            <%= link_to "Sign In", new_user_session_path, class: "link-success" %>
           </p>
         </div>
       </div>

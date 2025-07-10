@@ -10,16 +10,16 @@
     <div class="collapse navbar-collapse justify-content-end" id="navbarContent">
       <ul class="navbar-nav mb-2 mb-lg-0">
 
-        <% if session[:user_id] %>
+        <% if user_signed_in? %>
           <li class="nav-item">
-            <%= button_to 'Sign Out', sign_out_path, method: :delete, class: "nav-link btn btn-link", form: { class: 'd-inline' } %>
+            <%= button_to 'Sign Out', destroy_user_session_path, method: :delete, class: "nav-link btn btn-link text-white", form: { class: 'd-inline' } %>
           </li>
         <% else %>
           <li class="nav-item">
-            <%= link_to 'Sign Up', sign_up_path, class: "nav-link" %>
+            <%= link_to 'Sign Up', new_user_registration_path, class: "nav-link" %>
           </li>
           <li class="nav-item">
-            <%= link_to 'Sign In', sign_in_path, class: "nav-link" %>
+            <%= link_to 'Sign In', new_user_session_path, class: "nav-link" %>
           </li>
         <% end %>
 
@@ -29,8 +29,8 @@
 </nav>
 
 <div class="container mt-5 text-center">
-  <% if session[:user_id]  %>
-    <h1>Welcome back, <%= User.find(session[:user_id]).email %>!</h1>
+  <% if user_signed_in? %>
+    <h1>Welcome back, <%= current_user.first_name.presence || current_user.email %>!</h1>
   <% else %>
     <h1>Login to Continue</h1>
   <% end %>
