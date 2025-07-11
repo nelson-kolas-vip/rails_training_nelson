@@ -1,0 +1,51 @@
+<div class="container min-vh-100 d-flex flex-column justify-content-center align-items-center">
+  <div class="row w-100 justify-content-center">
+    <div class="col-lg-4 col-md-6 col-12">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h2 class="mb-4 text-center text-primary">Sign In</h2>
+
+          <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+            <% if flash[:alert] %>
+              <div class="alert alert-danger"><%= flash[:alert] %></div>
+            <% end %>
+
+            <% if resource.errors.any? %>
+              <div class="alert alert-danger">
+                <ul class="mb-0">
+                  <% resource.errors.full_messages.each do |msg| %>
+                    <li><%= msg %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+
+            <div class="mb-3">
+              <%= f.label :email, class: "form-label" %>
+              <%= f.email_field :email, class: "form-control", placeholder: "Enter your email", autofocus: true, required: true %>
+            </div>
+
+            <div class="mb-3">
+              <%= f.label :password, class: "form-label" %>
+              <%= f.password_field :password, class: "form-control", placeholder: "Enter your password", required: true %>
+            </div>
+
+            <div class="mb-3 form-check">
+              <%= f.check_box :remember_me, class: "form-check-input" %>
+              <%= f.label :remember_me, class: "form-check-label" %>
+            </div>
+
+            <div class="d-grid gap-2">
+              <%= f.submit "Sign In", class: "btn btn-primary btn-block" %>
+            </div>
+          <% end %>
+
+          <p class="mt-3 text-center">
+            Don't have an account?
+            <%= link_to "Sign Up", new_user_registration_path, class: "link-primary" %>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

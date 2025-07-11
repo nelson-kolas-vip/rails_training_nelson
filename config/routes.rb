@@ -1,7 +1,5 @@
 Rails.application.routes.draw do
-  get "sessions/new"
-  get "sessions/create"
-  get "sessions/destroy"
+  devise_for :users
   # Homepage
   root to: redirect("/homepage")
   get "homepage", to: "homepage#index"
@@ -11,11 +9,12 @@ Rails.application.routes.draw do
   post "count/increment", to: "counter#increment", as: "increment_count"
   get "count/reset", to: "counter#reset", as: "reset_count"
 
-  # User Authentication
-  get "/signup", to: "users#new", as: "signup"
-  post "/signup", to: "users#create"
+  # # Creating account
+  # get "/signup", to: "users#new", as: "sign_up"
+  # post "/signup", to: 'users#create', as: 'create_user'
 
-  get "/login", to: "sessions#new", as: "login"
-  post "/login", to: "sessions#create"
-  delete "/logout", to: "sessions#destroy", as: "logout"
+  # # Logging in/out - Handling sessions
+  # get '/sign_in', to: 'sessions#new', as: 'sign_in'
+  # post '/sign_in', to: 'sessions#create', as: 'sign_in_submit'
+  # delete '/sign_out', to: 'sessions#destroy', as: 'sign_out'
 end
