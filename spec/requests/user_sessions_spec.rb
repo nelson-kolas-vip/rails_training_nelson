@@ -6,7 +6,7 @@ RSpec.describe "User Sessions", type: :request do
   describe "POST /users/sign_in" do
     it "logs in with valid credentials" do
       post user_session_path, params: {
-        user: { email: user.email, password: 'password123' }
+        user: { email: user.email, password: 'rails@123' }
       }
     end
 
