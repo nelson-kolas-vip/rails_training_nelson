@@ -10,21 +10,16 @@
     <div class="collapse navbar-collapse justify-content-end" id="navbarContent">
       <ul class="navbar-nav mb-2 mb-lg-0">
 
-        <% if logged_in? %>
+        <% if user_signed_in? %>
           <li class="nav-item">
-            <span class="navbar-text me-3 text-white">
-              👋 Welcome, <%= current_user.first_name %>!
-            </span>
-          </li>
-          <li class="nav-item">
-            <%= button_to "Logout", logout_path, method: :delete, class: "btn btn-outline-light" %>
+            <%= button_to 'Sign Out', destroy_user_session_path, method: :delete, class: "nav-link btn btn-link text-white", form: { class: 'd-inline' } %>
           </li>
         <% else %>
-          <li class="nav-item me-2">
-            <%= link_to "Register", signup_path, class: "btn btn-success" %>
+          <li class="nav-item">
+            <%= link_to 'Sign Up', new_user_registration_path, class: "nav-link" %>
           </li>
           <li class="nav-item">
-            <%= link_to "Login", login_path, class: "btn btn-primary" %>
+            <%= link_to 'Sign In', new_user_session_path, class: "nav-link" %>
           </li>
         <% end %>
 
@@ -34,6 +29,10 @@
 </nav>
 
 <div class="container mt-5 text-center">
-  <h1 class="text-primary">Ruby on Rails By Nelson!!</h1>
+  <% if user_signed_in? %>
+    <h1>Welcome back, <%= current_user.first_name.presence || current_user.email %>!</h1>
+  <% else %>
+    <h1>Login to Continue</h1>
+  <% end %>
   <p class="lead">This is the homepage.</p>
 </div>

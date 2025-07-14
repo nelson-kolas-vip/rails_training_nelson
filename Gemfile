@@ -70,7 +70,14 @@ end
 # gem 'haml-rails'
 gem 'bcrypt'
 gem 'dotenv-rails'
+gem 'devise'
 
 group :development, :test do
   gem 'rubocop', require: false
+end
+
+group :development, :test do
+  gem 'factory_bot_rails'
+  gem 'faker'
+  gem 'rspec-rails'
 end
