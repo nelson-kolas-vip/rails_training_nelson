@@ -18,8 +18,8 @@ module Build
     end
 
     def create_users
-      puts "Creating 20 users..."
-      20.times do
+      puts "Creating 10 users..."
+      10.times do
         User.create!(
           first_name: Faker::Name.first_name,
           last_name: Faker::Name.last_name,
@@ -31,7 +31,7 @@ module Build
           password_confirmation: "rails@123"
         )
       end
-      puts "20 users created."
+      puts "10 users created."
     end
   end
 end
