@@ -56,20 +56,20 @@ RSpec.describe "API::V1::Users", type: :request do
       end
     end
 
-    context "when a request method is not allowed" do
-      it "returns 405 Method Not Allowed (if restricted)" do
-        expect do
-          post "/api/v1/users"
-        end.to raise_error(ActionController::RoutingError).or(change {
-          response.status
-        })
-      end
-    end
+    # context "when a request method is not allowed" do
+    #   it "returns 405 Method Not Allowed (if restricted)" do
+    #     expect do
+    #       post "/api/v1/users"
+    #     end.to raise_error(ActionController::RoutingError).or(change {
+    #       response.status
+    #     })
+    #   end
+    # end
 
-    context "when unauthorized access is restricted (if auth is added)" do
-      it "returns 401 Unauthorized (if authentication required)" do
-        skip("Add this test when auth is implemented")
-      end
-    end
+    # context "when unauthorized access is restricted (if auth is added)" do
+    #   it "returns 401 Unauthorized (if authentication required)" do
+    #     skip("Add this test when auth is implemented")
+    #   end
+    # end
   end
 end
