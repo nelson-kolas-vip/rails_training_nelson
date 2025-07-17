@@ -14,7 +14,7 @@ Rails.application.routes.draw do
   # mount Apipie::Engine => '/apipie'
   namespace :api do
     namespace :v1 do
-      resources :users, only: [:index, :create, :show]
+      resources :users, only: [:index, :create, :show, :update]
     end
   end
 

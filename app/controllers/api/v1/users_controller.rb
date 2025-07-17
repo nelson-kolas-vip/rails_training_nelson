@@ -5,37 +5,41 @@ module Api
       skip_before_action :verify_authenticity_token
       include ActionController::MimeResponds
 
-      def_param_group :user do
-        property :id, String, desc: 'User ID'
-        property :first_name, String, desc: 'First name of the user'
-        property :last_name, String, desc: 'Last name of the user'
-        property :email, String, desc: 'User email'
-        property :created_at, String, desc: 'Account creation date'
+      # Param Groups
+      def_param_group :user_input do
+        param :first_name, String, desc: 'First name of the user', required: false
+        param :last_name, String, desc: 'Last name of the user', required: false
+        param :email, String, desc: 'Email address of the user', required: false
+        param :phone_number, String, desc: 'Phone number of the user', required: false
+        param :password, String, desc: 'Password for the user', required: false
+        param :password_confirmation, String, desc: 'Password confirmation', required: false
+        param :age, Integer, desc: 'Age of the user', required: false
+        param :date_of_birth, String, desc: 'Date of birth (YYYY-MM-DD)', required: false
       end
 
-      api :GET, '/api/v1/users', 'Get all available users'
-      returns array_of: :user, code: 200, desc: 'List of all users'
+      def_param_group :user do
+        property :id, Integer, desc: 'User ID'
+        property :first_name, String, desc: 'First name'
+        property :last_name, String, desc: 'Last name'
+        property :email, String, desc: 'Email'
+        property :created_at, String, desc: 'Created at'
+      end
+
+      # Index
+      api :GET, '/api/v1/users', 'List all users'
+      returns array_of: :user, code: 200, desc: 'List of users'
       def index
         users = User.all
         render json: users, each_serializer: UserSerializer
       end
 
-      def_param_group :user_input do
-        param :first_name, String, required: true
-        param :last_name, String, required: true
-        param :email, String, required: true, allow_nil: true
-        param :phone_number, String, required: true
-        param :password, String, required: true
-        param :password_confirmation, String, required: true
-        param :age, Integer, required: true
-        param :date_of_birth, String, required: true, desc: 'Format: YYYY-MM-DD'
-      end
-
-      api :POST, '/api/v1/users', 'Create a new User'
+      # Create
+      api :POST, '/api/v1/users', 'Create a new user'
       param_group :user_input
-      returns code: 201, desc: 'User created' do
+      returns code: 201, desc: 'User created successfully' do
         param_group :user
       end
+      error code: 422, desc: 'Validation failed'
       def create
         outcome = Api::V1::CreateUserInteraction.run(user_params)
 
@@ -46,17 +50,17 @@ module Api
         end
       end
 
-      api :GET, '/api/v1/users/:id', 'Show details of a specific user based on ID'
-      param :id, String, required: true, desc: 'ID of the user'
+      # Show
+      api :GET, '/api/v1/users/:id', 'Show user by ID'
+      param :id, :number, required: true, desc: 'User ID'
       returns code: 200, desc: 'User details' do
         param_group :user
       end
       error code: 404, desc: 'User not found'
       def show
-        render json: { error: 'ID is blank' }, status: :not_found if params[:id].blank?
-        user_id = params[:id].to_i
-        puts "User ID: #{user_id}"
-        user = User.find_by(id: user_id)
+        return render json: { error: 'ID is blank' }, status: :not_found if params[:id].blank?
+
+        user = User.find_by(id: params[:id].to_i)
 
         if user
           render json: user, serializer: UserSerializer
@@ -65,19 +69,35 @@ module Api
         end
       end
 
+      # Update
+      api :PUT, '/api/v1/users/:id', 'Update an existing user'
+      param :id, :number, required: true, desc: 'User ID'
+      param_group :user_input
+      returns code: 200, desc: 'User updated successfully' do
+        param_group :user
+      end
+      error code: 404, desc: 'User not found'
+      error code: 422, desc: 'Validation errors'
+      def update
+        user_id = params[:id].to_i
+        outcome = Api::V1::UpdateUserInteraction.run(user_update_params.merge(id: user_id))
+
+        if outcome.valid?
+          render json: outcome.result, serializer: UserSerializer
+        else
+          status = outcome.errors.full_messages.include?("User not found") ? :not_found : :unprocessable_entity
+          render json: { errors: outcome.errors.full_messages }, status: status
+        end
+      end
+      
       private
 
       def user_params
-        params.permit(
-          :first_name,
-          :last_name,
-          :email,
-          :phone_number,
-          :password,
-          :password_confirmation,
-          :age,
-          :date_of_birth
-        )
+        params.permit(:first_name, :last_name, :email, :phone_number, :password, :password_confirmation, :age, :date_of_birth)
+      end
+
+      def user_update_params
+        params.permit(:first_name, :last_name, :email, :phone_number, :password, :password_confirmation, :age, :date_of_birth)
       end
     end
   end
