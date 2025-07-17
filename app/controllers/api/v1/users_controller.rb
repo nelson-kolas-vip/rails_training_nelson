@@ -6,7 +6,7 @@ module Api
       include ActionController::MimeResponds
 
       def_param_group :user do
-        property :id, Integer, desc: 'User ID'
+        property :id, String, desc: 'User ID'
         property :first_name, String, desc: 'First name of the user'
         property :last_name, String, desc: 'Last name of the user'
         property :email, String, desc: 'User email'
@@ -43,6 +43,25 @@ module Api
           render json: outcome.result, serializer: UserSerializer, status: :created
         else
           render json: { errors: outcome.errors.full_messages }, status: :unprocessable_entity
+        end
+      end
+
+      api :GET, '/api/v1/users/:id', 'Show details of a specific user based on ID'
+      param :id, String, required: true, desc: 'ID of the user'
+      returns code: 200, desc: 'User details' do
+        param_group :user
+      end
+      error code: 404, desc: 'User not found'
+      def show
+        render json: { error: 'ID is blank' }, status: :not_found if params[:id].blank?
+        user_id = params[:id].to_i
+        puts "User ID: #{user_id}"
+        user = User.find_by(id: user_id)
+
+        if user
+          render json: user, serializer: UserSerializer
+        else
+          render json: { error: 'User not found' }, status: :not_found
         end
       end
 
