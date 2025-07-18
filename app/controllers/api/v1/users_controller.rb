@@ -89,6 +89,21 @@ module Api
           render json: { errors: outcome.errors.full_messages }, status: status
         end
       end
+
+      #Destroy
+      api :DELETE, '/api/v1/users/:id', 'Delete a user'
+      param :id, String, required: true, desc: 'User ID to delete'
+      returns code: 200, desc: 'User successfully deleted'
+      error code: 404, desc: 'User not found'
+      def destroy
+        outcome = Api::V1::DestroyUserInteraction.run(id: params[:id].to_i)
+
+        if outcome.valid?
+          render json: { message: 'User deleted successfully' }, status: :ok
+        else
+          render json: { errors: outcome.errors.full_messages }, status: :not_found
+        end
+      end
       
       private
 
