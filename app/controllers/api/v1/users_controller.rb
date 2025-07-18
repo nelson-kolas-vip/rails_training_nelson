@@ -1,8 +1,6 @@
 module Api
   module V1
     class UsersController < ApplicationController
-      extend Apipie::DSL::Concern
-
       def_param_group :user do
         property :id, Integer, desc: 'User ID'
         property :first_name, String, desc: 'First name of the user'
