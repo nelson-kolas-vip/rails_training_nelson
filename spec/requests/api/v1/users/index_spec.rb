@@ -71,5 +71,72 @@ RSpec.describe "API::V1::Users", type: :request do
     #     skip("Add this test when auth is implemented")
     #   end
     # end
+
+    context "when filtering by first_name" do
+      let!(:nelson_doe)   { create(:user, first_name: "Nelson", last_name: "Rodrigues", email: "nelson@example.com") }
+      let!(:nelson_singh) { create(:user, first_name: "Nelson", last_name: "Singh", email: "nelson2@example.com") }
+      let!(:samson_milton) { create(:user, first_name: "Samson", last_name: "Milton", email: "samson@example.com") }
+      let!(:velson_doe) { create(:user, first_name: "Velson", last_name: "Doe", email: "velson@example.com") }
+
+      it "returns users with matching first_name" do
+        get "/api/v1/users", params: { first_name: "Nelson" }
+
+        json = JSON.parse(response.body)
+        expect(json.size).to eq(2)
+        expect(json.map { |u| u["first_name"] }.uniq).to eq(["Nelson"])
+      end
+    end
+
+    context "when filtering by last_name" do
+      let!(:nelson_doe)   { create(:user, first_name: "Nelson", last_name: "Doe") }
+      let!(:samson_doe)   { create(:user, first_name: "Samson", last_name: "Doe") }
+      let!(:velson_norris) { create(:user, first_name: "Velson", last_name: "Norris") }
+
+      it "returns users with matching last_name" do
+        get "/api/v1/users", params: { last_name: "Doe" }
+
+        json = JSON.parse(response.body)
+        expect(json.size).to eq(2)
+        expect(json.map { |u| u["last_name"] }.uniq).to eq(["Doe"])
+      end
+    end
+
+    context "when filtering by email" do
+      let!(:john) { create(:user, email: "john@example.com") }
+      let!(:jane) { create(:user, email: "jane@example.com") }
+
+      it "returns user with exact email match" do
+        get "/api/v1/users", params: { email: "john@example.com" }
+
+        json = JSON.parse(response.body)
+        expect(json.size).to eq(1)
+        expect(json.first["email"]).to eq("john@example.com")
+      end
+    end
+
+    context "when filtering by multiple fields" do
+      let!(:john_doe)    { create(:user, first_name: "John", last_name: "Doe", email: "john@example.com") }
+      let!(:john_milton) { create(:user, first_name: "John", last_name: "Milton", email: "milton@example.com") }
+
+      it "returns users that match all filters" do
+        get "/api/v1/users", params: { first_name: "John", last_name: "Doe" }
+
+        json = JSON.parse(response.body)
+        expect(json.size).to eq(1)
+        expect(json.first["first_name"]).to eq("John")
+        expect(json.first["last_name"]).to eq("Doe")
+      end
+    end
+
+    context "when filter returns no results" do
+      before { create(:user, first_name: "Alice", last_name: "Smith", email: "alice@example.com") }
+
+      it "returns an empty array" do
+        get "/api/v1/users", params: { first_name: "Bob" }
+
+        json = JSON.parse(response.body)
+        expect(json).to eq([])
+      end
+    end
   end
 end

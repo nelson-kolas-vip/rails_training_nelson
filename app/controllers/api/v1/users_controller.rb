@@ -27,7 +27,7 @@ module Api
       api :GET, '/api/v1/users', 'List all users'
       returns array_of: :user, code: 200, desc: 'List of users'
       def index
-        users = User.all
+        users = Api::V1::UsersQuery.new(params).call
         render json: users, each_serializer: UserSerializer
       end
 
@@ -102,6 +102,26 @@ module Api
           render json: { errors: outcome.errors.full_messages }, status: :not_found
         end
       end
+
+      # Query Filter
+      api :GET, '/api/v1/users', 'Returns a list of users with optional filters'
+      param :first_name, String, desc: 'Filter by first name (partial match)'
+      param :last_name, String, desc: 'Filter by last name (partial match)'
+      param :email, String, desc: 'Filter by email (partial match)'
+      example <<~EOS
+        GET /api/v1/users?first_name=John&last_name=Doe
+
+        Response:
+        [
+          {
+            "id": 1,
+            "first_name": "Nelson",
+            "last_name": "Kolas",
+            "email": "nelson@example.com",
+            ...
+          }
+        ]
+      EOS
 
       private
 
