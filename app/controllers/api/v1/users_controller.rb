@@ -1,7 +1,7 @@
 module Api
   module V1
     class UsersController < ApplicationController
-      skip_before_action :verify_authenticity_token
+      before_action :authenticate_admin!
 
       # Param Groups
       def_param_group :user_input do
