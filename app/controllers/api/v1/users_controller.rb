@@ -1,7 +1,7 @@
 module Api
   module V1
     class UsersController < ApplicationController
-      skip_before_action :verify_authenticity_token
+      before_action :authenticate_admin!
 
       def_param_group :user_input do
         param :first_name, String, desc: 'First name of the user', required: false
