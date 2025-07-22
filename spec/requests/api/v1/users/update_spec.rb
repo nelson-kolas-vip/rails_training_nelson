@@ -35,7 +35,7 @@ RSpec.describe 'API::V1::Users#update', type: :request do
 
         json = JSON.parse(response.body)
         expect(json['last_name']).to eq('SoloChange')
-        expect(json['email']).to eq('john@example.com') # unchanged
+        expect(json['email']).to eq('john@example.com')
       end
     end
 
