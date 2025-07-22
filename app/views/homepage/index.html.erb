@@ -1,32 +1,83 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+<nav class="navbar navbar-dark bg-dark px-3">
   <div class="container-fluid">
+
+    <% if user_signed_in? %>
+      <!-- Hamburger Menu -->
+      <a role="button" class="nav-link text-white me-2" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
+        <i class="bi bi-list fs-4"></i>
+      </a>
+    <% end %>
+
     <a class="navbar-brand" href="#">RailsApp 🚀</a>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
-      aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse justify-content-end" id="navbarContent">
-      <ul class="navbar-nav mb-2 mb-lg-0">
-
-        <% if user_signed_in? %>
-          <li class="nav-item">
-            <%= button_to 'Sign Out', destroy_user_session_path, method: :delete, class: "nav-link btn btn-link text-white", form: { class: 'd-inline' } %>
-          </li>
-        <% else %>
-          <li class="nav-item">
-            <%= link_to 'Sign Up', new_user_registration_path, class: "nav-link" %>
-          </li>
-          <li class="nav-item">
-            <%= link_to 'Sign In', new_user_session_path, class: "nav-link" %>
-          </li>
-        <% end %>
-
-      </ul>
+    <!-- Right Side Links -->
+    <div class="d-flex">
+      <% if user_signed_in? %>
+        <p class="nav-link text-white m-0"><%= current_user.first_name.presence+" "+current_user.last_name.presence || current_user.email%></p>
+      <% else %>
+        <%= link_to 'Sign Up', new_user_registration_path, class: "nav-link text-white me-2" %>
+        <%= link_to 'Sign In', new_user_session_path, class: "nav-link text-white ms-2" %>
+      <% end %>
     </div>
+
   </div>
 </nav>
+
+<% if user_signed_in? %>
+  <div class="offcanvas offcanvas-start bg-dark text-white" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="sidebarMenuLabel">Menu</h5>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+
+      <div class="accordion accordion-flush" id="sidebarAccordion">
+
+        <div class="accordion-item bg-dark text-white border-0">
+          <h2 class="accordion-header" id="profileHeading">
+            <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#profileCollapse" aria-expanded="false" aria-controls="profileCollapse">
+              <i class="bi bi-person-circle me-2"></i>My Profile
+            </button>
+          </h2>
+          <div id="profileCollapse" class="accordion-collapse collapse" aria-labelledby="profileHeading" data-bs-parent="#sidebarAccordion">
+            <div class="accordion-body">
+              <ul class="nav flex-column">
+                <li class="nav-item"><a href="#" class="nav-link text-white">Update Avatar</a></li>
+                <li class="nav-item"><a href="#" class="nav-link text-white">Update Personal Data</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item bg-dark text-white border-0">
+          <h2 class="accordion-header" id="restaurantHeading">
+            <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#restaurantCollapse" aria-expanded="false" aria-controls="restaurantCollapse">
+              <i class="bi bi-shop-window me-2"></i>Restaurants
+            </button>
+          </h2>
+          <div id="restaurantCollapse" class="accordion-collapse collapse" aria-labelledby="restaurantHeading" data-bs-parent="#sidebarAccordion">
+            <div class="accordion-body">
+              <ul class="nav flex-column">
+                <li class="nav-item"><a href="#" class="nav-link text-white">Restaurants</a></li>
+                <li class="nav-item"><a href="#" class="nav-link text-white">Create Restaurant</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+
+      <hr class="text-white">
+      <%= button_to destroy_user_session_path, method: :delete, class: "btn btn-danger w-100 d-flex align-items-center justify-content-center gap-2" do %>
+        <i class="bi bi-box-arrow-right"></i>
+        Sign Out
+      <% end %>
+    </div>
+  </div>
+<% end %>
 
 <div class="container mt-5 text-center">
   <% if user_signed_in? %>
