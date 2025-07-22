@@ -1,75 +1,71 @@
 require 'rails_helper'
 
-RSpec.describe "API::V1::Users", type: :request do
-  describe "GET /api/v1/users" do
-    context "when users exist" do
-      before do
-        create_list(:user, 5)
-        get "/api/v1/users"
-      end
+RSpec.describe "GET /api/v1/users", type: :request do
+  let!(:token) { Token.create }
 
-      it "returns http success" do
-        expect(response).to have_http_status(:success)
-      end
-
-      it "returns a list of users" do
-        json = JSON.parse(response.body)
-        expect(json.length).to eq(5)
-      end
-
-      it "returns users with only allowed attributes" do
-        json = JSON.parse(response.body)
-        user = json.first
-
-        expect(user.keys).to match_array(%w[id first_name last_name email created_at])
-      end
-
-      it "returns data in JSON format" do
-        expect(response.content_type).to eq("application/json; charset=utf-8")
-      end
-
-      it "does not return sensitive attributes" do
-        json = JSON.parse(response.body)
-        user = json.first
-
-        expect(user.keys).not_to include("password", "encrypted_password", "updated_at")
-      end
+  context "when users exist" do
+    before do
+      create_list(:user, 5)
+      get "/api/v1/users", headers: { "Authorization" => token.value }
     end
 
-    context "when no users exist" do
-      before { get "/api/v1/users" }
-
-      it "returns an empty array" do
-        json = JSON.parse(response.body)
-        expect(json).to eq([])
-      end
-
-      it "still returns a success status" do
-        expect(response).to have_http_status(:success)
-      end
+    it "returns http success" do
+      expect(response).to have_http_status(:success)
     end
 
-    context "when the route is invalid" do
-      it "returns 404 Not Found" do
-        get "/api/v1/non_existent_route"
-        expect(response).to have_http_status(:not_found)
-      end
+    it "returns a list of users" do
+      json = JSON.parse(response.body)
+      expect(json.length).to eq(5)
     end
 
-    # context "when a request method is not allowed" do
-    #   it "returns 405 Method Not Allowed (if restricted)" do
-    #     expect do
-    #       post "/api/v1/users"
-    #     end.to raise_error(ActionController::RoutingError).or(change {
-    #       response.status
-    #     })
-    #   end
-    # end
+    it "returns users with only allowed attributes" do
+      json = JSON.parse(response.body)
+      user = json.first
+      expect(user.keys).to match_array(%w[id first_name last_name email created_at])
+    end
 
-    # context "when unauthorized access is restricted (if auth is added)" do
-    #   it "returns 401 Unauthorized (if authentication required)" do
-    #     skip("Add this test when auth is implemented")
-    #   end
-    # end
+    it "returns data in JSON format" do
+      expect(response.content_type).to eq("application/json; charset=utf-8")
+    end
+
+    it "does not return sensitive attributes" do
+      json = JSON.parse(response.body)
+      user = json.first
+      expect(user.keys).not_to include("password", "encrypted_password", "updated_at")
+    end
+  end
+
+  context "when no users exist" do
+    before { get "/api/v1/users", headers: { "Authorization" => token.value } }
+
+    it "returns an empty array" do
+      json = JSON.parse(response.body)
+      expect(json).to eq([])
+    end
+
+    it "still returns a success status" do
+      expect(response).to have_http_status(:success)
+    end
+  end
+
+  context "when authorization is missing or invalid" do
+    it "returns unauthorized status with no token" do
+      get "/api/v1/users"
+      expect(response).to have_http_status(:unauthorized)
+      expect(JSON.parse(response.body)["error"]).to eq("Unauthorized")
+    end
+
+    it "returns unauthorized with invalid token" do
+      get "/api/v1/users", headers: { "Authorization" => "invalidtoken123" }
+      expect(response).to have_http_status(:unauthorized)
+      expect(JSON.parse(response.body)["error"]).to eq("Unauthorized")
+    end
+  end
+
+  context "when route is invalid" do
+    it "returns 404 Not Found" do
+      get "/api/v1/non_existent_route", headers: { "Authorization" => token.value }
+      expect(response).to have_http_status(:not_found)
+    end
   end
 end

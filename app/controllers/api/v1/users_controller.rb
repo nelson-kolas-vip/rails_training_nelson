@@ -3,7 +3,6 @@ module Api
     class UsersController < ApplicationController
       skip_before_action :verify_authenticity_token
 
-      # Param Groups
       def_param_group :user_input do
         param :first_name, String, desc: 'First name of the user', required: false
         param :last_name, String, desc: 'Last name of the user', required: false
@@ -23,15 +22,13 @@ module Api
         property :created_at, String, desc: 'Created at'
       end
 
-      # Index
       api :GET, '/api/v1/users', 'List all users'
       returns array_of: :user, code: 200, desc: 'List of users'
       def index
-        users = User.all
+        users = Api::V1::UsersQuery.new(params).call
         render json: users, each_serializer: UserSerializer
       end
 
-      # Create
       api :POST, '/api/v1/users', 'Create a new user'
       param_group :user_input
       returns code: 201, desc: 'User created successfully' do
@@ -48,7 +45,6 @@ module Api
         end
       end
 
-      # Show
       api :GET, '/api/v1/users/:id', 'Show user by ID'
       param :id, :number, required: true, desc: 'User ID'
       returns code: 200, desc: 'User details' do
@@ -67,7 +63,6 @@ module Api
         end
       end
 
-      # Update
       api :PUT, '/api/v1/users/:id', 'Update an existing user'
       param :id, :number, required: true, desc: 'User ID'
       param_group :user_input
@@ -88,7 +83,6 @@ module Api
         end
       end
 
-      # Destroy
       api :DELETE, '/api/v1/users/:id', 'Delete a user'
       param :id, String, required: true, desc: 'User ID to delete'
       returns code: 200, desc: 'User successfully deleted'
@@ -102,6 +96,11 @@ module Api
           render json: { errors: outcome.errors.full_messages }, status: :not_found
         end
       end
+
+      api :GET, '/api/v1/users', 'Returns a list of users with optional filters'
+      param :first_name, String, desc: 'Filter by first name (partial match)'
+      param :last_name, String, desc: 'Filter by last name (partial match)'
+      param :email, String, desc: 'Filter by email (partial match)'
 
       private
 
