@@ -17,7 +17,7 @@ Rails.application.routes.draw do
       resources :users, only: [:index, :create, :show, :update, :destroy]
     end
   end
-
+  resource :avatar, only: [:edit, :update, :destroy]
   # # Creating account
   # get "/signup", to: "users#new", as: "sign_up"
   # post "/signup", to: 'users#create', as: 'create_user'
