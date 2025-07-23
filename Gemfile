@@ -80,6 +80,9 @@ gem 'apipie-rails'
 # Added on OS-66
 gem 'active_interaction'
 
+gem 'fastimage'
+# gem 'image_processing', '~> 1.12'
+
 group :development, :test do
   gem 'rubocop', require: false
 end

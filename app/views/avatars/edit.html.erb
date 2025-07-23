@@ -1,0 +1,67 @@
+<!-- Flash messages -->
+<div class="container mt-3">
+  <% if flash[:notice] %>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <%= flash[:notice] %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <% elsif flash[:alert] || flash[:error] %>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <%= flash[:alert] || flash[:error] %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <% end %>
+</div>
+
+<div class="container d-flex align-items-center justify-content-center min-vh-100">
+  <div class="col-md-8 col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h4 class="text-center mb-4">Update Avatar</h4>
+
+        <%= form_with model: current_user, url: avatar_path, local: true, html: { multipart: true }, method: :patch do |f| %>
+          
+          <div class="text-center mb-4">
+            <p class="mb-2 fw-bold">
+              <% if current_user.avatar.attached? %>
+                Current Avatar:
+              <% else %>
+                No Avatar Uploaded
+              <% end %>
+            </p>
+
+            <% if current_user.avatar.attached? %>
+              <%= image_tag url_for(current_user.avatar), class: "rounded-circle shadow img-thumbnail", size: "150x150" %>
+              <div class="mt-2">
+                <%= button_to "Delete Avatar", avatar_path,
+                  method: :delete,
+                  class: "btn btn-outline-danger btn-sm",
+                  data: {
+                    turbo: false,
+                    confirm: "Are you sure you want to delete your avatar?"
+                  } 
+                %>
+              </div>
+            <% else %>
+              <%= image_tag "def.jpg", class: "rounded-circle shadow img-thumbnail", size: "200x150" %>
+            <% end %>
+          </div>
+
+          <div class="mb-3">
+            <%= f.label :avatar, "Upload New Avatar", class: "form-label" %>
+            <%= f.file_field :avatar, class: "form-control" %>
+            <small class="form-text text-muted">JPEG/PNG only, max size 10MB, max dimensions 1600x1200</small>
+          </div>
+
+          <div class="d-grid gap-2 d-md-flex justify-content-md-between">
+            <%= link_to root_path, class: "btn btn-secondary" do %>
+              <i class="bi bi-arrow-left-circle-fill"></i> Cancel
+            <% end %>
+            <%= f.submit "Upload Avatar", class: "btn btn-primary" %>
+          </div>
+
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
