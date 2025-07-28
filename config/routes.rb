@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get "restaurants/new"
+  get "restaurants/create"
   apipie
   devise_for :users
   # Homepage
@@ -18,6 +20,8 @@ Rails.application.routes.draw do
     end
   end
   resource :avatar, only: [:edit, :update, :destroy]
+  resources :restaurants, only: [:index, :new, :create, :show, :edit, :update]
+
   # # Creating account
   # get "/signup", to: "users#new", as: "sign_up"
   # post "/signup", to: 'users#create', as: 'create_user'

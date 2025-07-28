@@ -13,14 +13,15 @@ module Build
 
     def reset_data
       puts "Cleaning up database..."
+      Restaurant.destroy_all
       User.destroy_all
       puts "All records deleted."
     end
 
     def create_users
-      puts "Creating 10 users..."
+      puts "Creating 10 users with restaurants..."
       10.times do
-        User.create!(
+        user = User.create!(
           first_name: Faker::Name.first_name,
           last_name: Faker::Name.last_name,
           email: Faker::Internet.unique.email,
@@ -30,8 +31,23 @@ module Build
           password: "rails@123",
           password_confirmation: "rails@123"
         )
+
+        %w[open closed archived].each do |status|
+          2.times do
+            user.restaurants.create!(
+              name: Faker::Restaurant.name,
+              description: Faker::Restaurant.description,
+              location: Faker::Address.city,
+              cuisine_type: Faker::Restaurant.type,
+              rating: rand(1..5),
+              status: status,
+              note: Faker::Lorem.sentence,
+              likes: rand(0..100)
+            )
+          end
+        end
       end
-      puts "10 users created."
+      puts "10 users created with restaurants in open/closed/archived states."
     end
   end
 end

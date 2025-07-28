@@ -69,8 +69,12 @@
           <div id="restaurantCollapse" class="accordion-collapse collapse" aria-labelledby="restaurantHeading" data-bs-parent="#sidebarAccordion">
             <div class="accordion-body">
               <ul class="nav flex-column">
-                <li class="nav-item"><a href="#" class="nav-link text-white">Restaurants</a></li>
-                <li class="nav-item"><a href="#" class="nav-link text-white">Create Restaurant</a></li>
+                <li class="nav-item">
+                  <%= link_to "Restaurants", restaurants_path, class: "nav-link text-white" %>
+                </li>
+                <li class="nav-item">
+                  <%= link_to "Create Restaurant", new_restaurant_path, class: "nav-link text-white" %>
+                </li>
               </ul>
             </div>
           </div>

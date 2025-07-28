@@ -83,6 +83,8 @@ gem 'active_interaction'
 gem 'fastimage'
 # gem 'image_processing', '~> 1.12'
 
+gem 'aasm'
+
 group :development, :test do
   gem 'rubocop', require: false
 end
