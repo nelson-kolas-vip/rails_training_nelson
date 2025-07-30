@@ -11,7 +11,7 @@ RSpec.describe "User Sign In", type: :feature do
 
     click_button "Sign In"
 
-    expect(page).to have_content("Welcome")
+    expect(page).to have_content("Welcome back,")
   end
 
   it "shows error with incorrect credentials" do
@@ -21,7 +21,6 @@ RSpec.describe "User Sign In", type: :feature do
     fill_in "Password", with: "wrongpass"
 
     click_button "Sign In"
-
-    expect(page).to have_text(/invalid.*password/i)
+    expect(page).to have_content(/Invalid email or password/i)
   end
 end
