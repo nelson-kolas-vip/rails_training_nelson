@@ -33,14 +33,13 @@
         </div>
 
         <div class="dropdown">
-          <span class="nav-link dropdown-toggle text-white" href="#" role="button" id="signinDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-            Sign In
-          </span>
-          <ul class="dropdown-menu dropdown-menu-dark animate-dropdown dropdown-menu-end" aria-labelledby="signinDropdown">
-            <li><%= link_to "As Customer", new_user_session_path(role: 'customer'), class: "dropdown-item animate-dropdown-item" %></li>
-            <li><%= link_to "As Staff", new_user_session_path(role: 'staff'), class: "dropdown-item animate-dropdown-item" %></li>
-            <li><%= link_to "As Admin", new_user_session_path(role: 'admin'), class: "dropdown-item animate-dropdown-item" %></li>
-          </ul>
+            <span class="nav-link dropdown-toggle text-white" href="#" role="button" id="signinDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                Sign In
+            </span>
+            <ul class="dropdown-menu dropdown-menu-dark animate-dropdown dropdown-menu-end" aria-labelledby="signinDropdown">
+                <li><%= link_to "As Customer", new_user_session_path(role: 'customer'), class: "dropdown-item animate-dropdown-item" %></li>
+                <li><%= link_to "As Staff", new_user_session_path(role: 'staff'), class: "dropdown-item animate-dropdown-item" %></li>
+            </ul>
         </div>
       <% end %>
     </div>
