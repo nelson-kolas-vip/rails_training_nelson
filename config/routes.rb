@@ -2,7 +2,10 @@ Rails.application.routes.draw do
   get "restaurants/new"
   get "restaurants/create"
   apipie
-  devise_for :users
+
+  devise_for :users, controllers: {
+    sessions: 'users/sessions'
+  }
   # Homepage
   root to: redirect("/homepage")
   get "homepage", to: "homepage#index"

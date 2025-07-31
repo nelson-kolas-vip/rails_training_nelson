@@ -1,0 +1,47 @@
+<!-- app/views/layouts/_navbar.html.erb -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<nav class="navbar navbar-dark bg-dark px-3 shadow-sm">
+  <div class="container-fluid">
+    <% if user_signed_in? %>
+      <a role="button" class="nav-link text-white me-3" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
+        <i class="bi bi-list fs-4"></i>
+      </a>
+    <% end %>
+
+    <a class="navbar-brand animate-brand" href="#">RailsApp 🚀</a>
+
+    <div class="d-flex align-items-center gap-3">
+      <% if user_signed_in? %>
+        <div class="d-flex align-items-center gap-2 user-profile-info">
+          <% if current_user.avatar.attached? %>
+            <%= image_tag url_for(current_user.avatar), class: "rounded-circle avatar-img", width: 32, height: 32, alt: "Avatar" %>
+          <% else %>
+            <%= image_tag "def.jpg", class: "rounded-circle avatar-img", width: 32, height: 32, alt: "Default Avatar" %>
+          <% end %>
+          <span class="text-white user-name-display">
+            <%= current_user.first_name.presence&.concat(" ")&.concat(current_user.last_name.presence) || current_user.email %>
+          </span>
+        </div>
+      <% else %>
+        <div class="dropdown">
+          <span class="nav-link dropdown-toggle text-white" href="#" role="button" id="signupDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            Sign Up
+          </span>
+          <ul class="dropdown-menu dropdown-menu-dark animate-dropdown dropdown-menu-end" aria-labelledby="signupDropdown">
+            <li><%= link_to "As Customer", new_user_registration_path(role: 'customer'), class: "dropdown-item animate-dropdown-item" %></li>
+          </ul>
+        </div>
+
+        <div class="dropdown">
+            <span class="nav-link dropdown-toggle text-white" href="#" role="button" id="signinDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                Sign In
+            </span>
+            <ul class="dropdown-menu dropdown-menu-dark animate-dropdown dropdown-menu-end" aria-labelledby="signinDropdown">
+                <li><%= link_to "As Customer", new_user_session_path(role: 'customer'), class: "dropdown-item animate-dropdown-item" %></li>
+                <li><%= link_to "As Staff", new_user_session_path(role: 'staff'), class: "dropdown-item animate-dropdown-item" %></li>
+            </ul>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</nav>

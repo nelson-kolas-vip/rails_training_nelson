@@ -47,6 +47,14 @@ module Build
           end
         end
       end
+      User.create!(
+        first_name: "sameple",
+        last_name: "customer",
+        email: "customer@gmail.com",
+        password: "rails@123",
+        role_type: :customer,
+        status: :active
+      )
       puts "10 users created with restaurants in open/closed/archived states."
     end
   end

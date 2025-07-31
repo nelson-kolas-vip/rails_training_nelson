@@ -1,38 +1,5 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-
-<nav class="navbar navbar-dark bg-dark px-3">
-  <div class="container-fluid">
-
-    <% if user_signed_in? %>
-      <!-- Hamburger Menu -->
-      <a role="button" class="nav-link text-white me-2" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
-        <i class="bi bi-list fs-4"></i>
-      </a>
-    <% end %>
-
-    <a class="navbar-brand" href="#">RailsApp 🚀</a>
-
-    <!-- Right Side Links -->
-    <div class="d-flex">
-      <% if user_signed_in? %>
-        <div class="d-flex align-items-center gap-2">
-          <% if current_user.avatar.attached? %>
-            <%= image_tag url_for(current_user.avatar), class: "rounded-circle shadow-sm", width: 32, height: 32, alt: "Avatar" %>
-          <% else %>
-            <%= image_tag "def.jpg", class: "rounded-circle shadow-sm", width: 32, height: 32, alt: "Default Avatar" %>
-          <% end %>
-          <p class="nav-link text-white m-0">
-            <%= current_user.first_name.presence&.concat(" ")&.concat(current_user.last_name.presence) || current_user.email %>
-          </p>
-        </div>
-      <% else %>
-        <%= link_to 'Sign Up', new_user_registration_path, class: "nav-link text-white me-2" %>
-        <%= link_to 'Sign In', new_user_session_path, class: "nav-link text-white ms-2" %>
-      <% end %>
-    </div>
-
-  </div>
-</nav>
+<%= render 'layouts/navbar' %>
 
 <% if user_signed_in? %>
   <div class="offcanvas offcanvas-start bg-dark text-white" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
@@ -42,46 +9,7 @@
     </div>
     <div class="offcanvas-body">
 
-      <div class="accordion accordion-flush" id="sidebarAccordion">
-
-        <div class="accordion-item bg-dark text-white border-0">
-          <h2 class="accordion-header" id="profileHeading">
-            <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#profileCollapse" aria-expanded="false" aria-controls="profileCollapse">
-              <i class="bi bi-person-circle me-2"></i>My Profile
-            </button>
-          </h2>
-          <div id="profileCollapse" class="accordion-collapse collapse" aria-labelledby="profileHeading" data-bs-parent="#sidebarAccordion">
-            <div class="accordion-body">
-              <ul class="nav flex-column">
-                <%= link_to "Update Avatar", edit_avatar_path, class: "nav-link text-white" %>
-                <%= link_to "Update Profile Data", edit_user_registration_path, class: "nav-link text-white" %>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div class="accordion-item bg-dark text-white border-0">
-          <h2 class="accordion-header" id="restaurantHeading">
-            <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#restaurantCollapse" aria-expanded="false" aria-controls="restaurantCollapse">
-              <i class="bi bi-shop-window me-2"></i>Restaurants
-            </button>
-          </h2>
-          <div id="restaurantCollapse" class="accordion-collapse collapse" aria-labelledby="restaurantHeading" data-bs-parent="#sidebarAccordion">
-            <div class="accordion-body">
-              <ul class="nav flex-column">
-                <li class="nav-item">
-                  <%= link_to "Restaurants", restaurants_path, class: "nav-link text-white" %>
-                </li>
-                <li class="nav-item">
-                  <%= link_to "Create Restaurant", new_restaurant_path, class: "nav-link text-white" %>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
+      <%= render 'layouts/sidebar' %>
 
       <hr class="text-white">
       <%= button_to destroy_user_session_path, method: :delete, class: "btn btn-danger w-100 d-flex align-items-center justify-content-center gap-2" do %>
@@ -100,3 +28,174 @@
   <% end %>
   <p class="lead">This is the homepage.</p>
 </div>
+
+<style>
+  /* General Body & HTML Styling */
+
+/* Navbar Enhancements */
+.navbar {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease; /* Smooth transitions for any changes */
+}
+
+.navbar-brand.animate-brand {
+  position: relative;
+  transition: transform 0.3s ease-in-out, color 0.3s ease;
+}
+
+.navbar-brand.animate-brand:hover {
+  transform: scale(1.05) rotate(2deg); /* Slight scale and rotation on hover */
+  color: #00bcd4; /* A vibrant blue for brand hover */
+}
+
+.navbar-hamburger-btn {
+  transition: transform 0.2s ease-in-out, color 0.2s ease;
+}
+
+.navbar-hamburger-btn:hover {
+  transform: scale(1.1); /* Pop effect for hamburger icon */
+  color: #00bcd4 !important; /* Match brand hover color */
+}
+
+.user-profile-info .avatar-img {
+  transition: transform 0.2s ease;
+}
+
+.user-profile-info .avatar-img:hover {
+  transform: scale(1.1) rotate(5deg); /* Slight rotation and scale on avatar hover */
+}
+
+.user-profile-info .user-name-display {
+  transition: color 0.2s ease;
+}
+
+.user-profile-info .user-name-display:hover {
+  color: #00bcd4 !important; /* Match brand hover color */
+}
+
+
+/* General Button Animations */
+.animate-button {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden; /* Hide overflow for ripple effect */
+}
+
+.animate-button:hover {
+  transform: translateY(-2px); /* Lift effect */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow */
+}
+
+.animate-button:active {
+  transform: translateY(0); /* Press down effect */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Dropdown Menu Animations */
+.animate-dropdown.dropdown-menu {
+  animation: fadeInScale 0.2s ease-out forwards;
+  transform-origin: top right; /* From where the animation originates */
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-dropdown-item {
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.animate-dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.1); /* Subtle hover for dark dropdown items */
+  transform: translateX(3px); /* Slight slide for dropdown items */
+}
+
+
+/* Offcanvas Sidebar Custom Animation */
+/* Override Bootstrap's default offcanvas transition */
+.sidebar-offcanvas.offcanvas {
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); /* Slower, smoother ease-out-back */
+}
+
+/* Main Content Fade-in */
+.content-fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: contentFadeIn 0.8s ease-out forwards;
+  animation-delay: 0.3s; /* Delay for a smoother page load experience */
+}
+
+@keyframes contentFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Heading and Lead Text Animations */
+.animate-heading {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: headingSlideIn 0.7s ease-out forwards;
+  animation-delay: 0.5s; /* Stagger the animation */
+  font-weight: 700;
+  color: #2c3034;
+}
+
+@keyframes headingSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-lead {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: leadSlideIn 0.7s ease-out forwards;
+  animation-delay: 0.7s; /* Stagger further */
+  color: #555;
+}
+
+@keyframes leadSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Example for the Sign Out button within the offcanvas */
+.offcanvas-body .btn-danger {
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.offcanvas-body .btn-danger:hover {
+    background-color: #dc3545; /* Slightly darker red on hover */
+    transform: translateY(-2px); /* Lift effect */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.offcanvas-body .btn-danger:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+</style>
