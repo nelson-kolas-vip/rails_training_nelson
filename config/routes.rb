@@ -24,6 +24,9 @@ Rails.application.routes.draw do
   end
   resource :avatar, only: [:edit, :update, :destroy]
   resources :restaurants, only: [:index, :new, :create, :show, :edit, :update]
+  resources :restaurants do
+    resources :tables, only: [:index, :create]
+  end
 
   # # Creating account
   # get "/signup", to: "users#new", as: "sign_up"

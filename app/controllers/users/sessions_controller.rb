@@ -22,7 +22,6 @@ module Users
 
       user = User.find_by(email: params[:user][:email].downcase)
       return if user.blank?
-
       # Check password validity
       return unless user.valid_password?(params[:user][:password])
 

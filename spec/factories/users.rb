@@ -7,5 +7,6 @@ FactoryBot.define do
     age        { rand(18..60) }
     date_of_birth { Faker::Date.birthday(min_age: 18, max_age: 60) }
     phone_number { Faker::PhoneNumber.cell_phone_in_e164 }
+    role_type { rand(2..3) }
   end
 end
