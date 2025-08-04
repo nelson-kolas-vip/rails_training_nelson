@@ -1,8 +1,8 @@
 FactoryBot.define do
   factory :table do
-    table_number { 1 }
-    seating_capacity { 1 }
-    status { 1 }
-    restaurant { nil }
+    table_number { Faker::Number.between(from: 1, to: 20) }
+    seating_capacity { Faker::Number.between(from: 1, to: 8) }
+    status { [:available, :occupied, :reserved].sample }
+    association :restaurant
   end
 end

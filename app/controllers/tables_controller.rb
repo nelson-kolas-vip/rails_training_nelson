@@ -10,7 +10,7 @@ class TablesController < ApplicationController
 
     @tables = @restaurant.tables
 
-    @tables = @tables.where(status: Table.statuses[@status_filter]) if @status_filter.present? && Table.statuses.key?(@status_filter)
+    @tables = @tables.where(status: @status_filter) if @status_filter.present? && Table.statuses.key?(@status_filter)
 
     if @search.present?
       query = "%#{@search.strip.downcase}%"
@@ -34,6 +34,24 @@ class TablesController < ApplicationController
       redirect_to restaurant_tables_path(@restaurant), notice: "Table created successfully."
     else
       redirect_to restaurant_tables_path(@restaurant), alert: "Failed to create table."
+    end
+  end
+
+  def update
+    @table = @restaurant.tables.find(params[:id])
+    if @table.update(table_params)
+      redirect_to restaurant_tables_path(@restaurant), notice: "Table updated successfully."
+    else
+      redirect_to restaurant_tables_path(@restaurant), alert: "Failed to update table."
+    end
+  end
+
+  def destroy
+    @table = @restaurant.tables.find(params[:id])
+    if @table.destroy
+      redirect_to restaurant_tables_path(@restaurant), notice: "Table deleted successfully."
+    else
+      redirect_to restaurant_tables_path(@restaurant), alert: "Failed to delete table."
     end
   end
 
