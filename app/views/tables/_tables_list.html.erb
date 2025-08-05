@@ -8,6 +8,8 @@
         <th><%= link_to "Status", restaurant_tables_path(@restaurant, status: params[:status], sort: 'status', search: params[:search]), data: { turbo_frame: "tables_list" }, class: "text-white text-decoration-none" %></th>
         <% if current_user&.staff? %>
           <th>Actions</th>
+        <% elsif current_user&.customer? %>
+          <th>Reservations</th>
         <% end %>
       </tr>
     </thead>
@@ -92,6 +94,14 @@
                     <i class="bi bi-trash"></i>
                   <% end %>
                 </div>
+              </td>
+            <% elsif current_user&.customer? %>
+              <td>
+                <% if table.status == "available"  %>
+                  <%= link_to new_restaurant_reservation_path(@restaurant, table_id: table.id),  class: "btn btn-sm btn-success", data: { turbo: false } do %>
+                    <i class="bi bi-bookmark-star-fill"></i> Reserve
+                  <% end %>
+                <% end %>
               </td>
             <% end %>
           </tr>

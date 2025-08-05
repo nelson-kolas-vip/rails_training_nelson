@@ -9,7 +9,11 @@ class TablesController < ApplicationController
     @sort_column = params[:sort] || 'table_number'
 
     @tables = @restaurant.tables
-
+    @tables = if current_user&.customer?
+                @restaurant.tables.available.paginate(page: params[:page], per_page: 5)
+              else
+                @restaurant.tables.paginate(page: params[:page], per_page: 10)
+              end
     @tables = @tables.where(status: @status_filter) if @status_filter.present? && Table.statuses.key?(@status_filter)
 
     if @search.present?

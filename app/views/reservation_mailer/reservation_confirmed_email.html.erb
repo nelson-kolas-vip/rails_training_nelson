@@ -1,0 +1,14 @@
+<h2>Reservation Confirmed!</h2>
+
+<p>Dear <%= @reservation.customer_name %>,</p>
+
+<p>Your reservation at <strong><%= @restaurant.name %></strong> has been confirmed.</p>
+
+<p>
+  <strong>Date:</strong> <%= @reservation.reservation_date.strftime("%B %d, %Y") %><br>
+  <strong>Time:</strong> <%= @reservation.reservation_time.strftime("%I:%M %p") %><br>
+  <strong>Guests:</strong> <%= @reservation.number_of_guests %><br>
+  <strong>Table:</strong> <%= @reservation.table&.table_number || "Assigned by Staff" %>
+</p>
+
+<p>Thank you for choosing us!</p>
