@@ -7,18 +7,12 @@ class Reservation < ApplicationRecord
   validates :reservation_date, :reservation_time, :number_of_guests, :customer_name, :customer_contact, presence: true
   validates :number_of_guests, numericality: { only_integer: true, greater_than: 0 }
 
-  # validate :no_double_booking
-
   def no_double_booking
-    # Check for existing reservations for the same table, date, and time.
-    # Crucially, exclude the current reservation (for updates)
-    # AND only consider reservations that are currently 'pending' or 'confirmed'.
     existing_active_reservations = Reservation.where(
       table_id: table_id,
       reservation_date: reservation_date,
       reservation_time: reservation_time
-    ).where.not(id: id) # Exclude the current record being validated
-                                              .where(status: [:pending, :confirmed]) # Only consider these statuses as 'booked'
+    ).where.not(id: id).where(status: [:pending, :confirmed])
 
     return unless existing_active_reservations.exists?
 
