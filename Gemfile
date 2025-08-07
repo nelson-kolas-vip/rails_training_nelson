@@ -84,12 +84,15 @@ gem 'fastimage'
 # gem 'image_processing', '~> 1.12'
 
 gem 'bootstrap-will_paginate', '~> 1.0.0'
+# gem 'letter_opener'
 gem 'pry'
+gem 'simple_form'
 gem 'will_paginate'
 
 gem 'aasm'
 
 group :development, :test do
+  gem 'letter_opener_web'
   gem 'rubocop', require: false
 end
 

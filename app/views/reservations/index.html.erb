@@ -1,0 +1,203 @@
+<div class="container my-5 reservation-list-container">
+  <div class="card p-4 shadow-lg rounded-3 border-0">
+    <div class="card-header bg-info text-white text-center py-3 rounded-top">
+      <h2 class="mb-0 fs-3 fw-bold">
+        <i class="bi bi-calendar-event me-2"></i>Reservations for <%= @restaurant.name %>
+      </h2>
+    </div>
+
+    <div class="card-body">
+      <% flash.each do |key, value| %>
+        <div class="alert alert-<%= key == "notice" ? "success" : (key == "alert" ? "danger" : key) %> alert-dismissible fade show" role="alert">
+          <%= value %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      <% end %>
+
+      <% if @reservations.any? %>
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped table-hover reservation-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Guests</th>
+                <th>Name</th>
+                <th>Contact</th>
+                <th>Table</th>
+                <th>Status</th>
+                <% if current_user&.staff? %>
+                  <th>Actions</th>
+                <% end %>
+              </tr>
+            </thead>
+            <tbody>
+              <% @reservations.each do |r| %>
+                <tr class="reservation-row-<%= r.status %>">
+                  <td><%= r.reservation_date.strftime("%b %d, %Y") %></td>
+                  <td><%= r.reservation_time.strftime("%I:%M %p") %></td>
+                  <td><%= r.number_of_guests %></td>
+                  <td><%= r.customer_name %></td>
+                  <td><%= r.customer_contact %></td>
+                  <td><%= "##{r.table.table_number}" %></td>
+                  <td>
+                    <% status_class = case r.status
+                                      when 'pending' then 'badge-warning'
+                                      when 'confirmed' then 'badge-success'
+                                      when 'rejected' then 'badge-danger'
+                                      else 'badge-secondary'
+                                      end %>
+                    <span class="badge <%= status_class %>">
+                      <i class="bi <%= case r.status
+                                        when 'pending' then 'bi-hourglass-split'
+                                        when 'confirmed' then 'bi-check-circle-fill'
+                                        when 'rejected' then 'bi-x-circle-fill'
+                                        else 'bi-question-circle-fill'
+                                        end %> me-1"></i>
+                      <%= r.status.titleize %>
+                    </span>
+                  </td>
+                  <% if current_user&.staff? %>
+                    <td>
+                      <div class="btn-group" role="group" aria-label="Reservation actions">
+                        <% if r.pending? %>
+                          <%= button_to accept_restaurant_reservation_path(@restaurant, r), method: :patch, class: "btn btn-sm btn-outline-success" do %>
+                            <i class="bi bi-check-lg"></i> Accept
+                          <% end %>
+                          <%= button_to reject_restaurant_reservation_path(@restaurant, r), method: :patch, class: "btn btn-sm btn-outline-danger" do %>
+                            <i class="bi bi-x-lg"></i> Reject
+                          <% end %>
+                        <% else %>
+                          <span class="text-muted fst-italic">No actions available</span>
+                        <% end %>
+                      </div>
+                    </td>
+                  <% end %>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <p class="text-center text-muted fs-5 mt-4">No reservations found for this restaurant.</p>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Custom CSS for Reservation List */
+  .reservation-list-container {
+    background-color: #f8f9fa;
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .card {
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+
+  .card-header {
+    background-color: #04333dff !important; /* Bootstrap info color */
+    border-bottom: 0;
+  }
+
+  .reservation-table thead th {
+    background-color: #343a40; /* Darker header for tables */
+    color: #ffffff;
+    font-weight: 600;
+    vertical-align: middle;
+    padding: 0.8rem 1rem;
+    border-bottom: 2px solid #495057;
+  }
+
+  .reservation-table tbody tr {
+    transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+  }
+
+  .reservation-table tbody tr:hover {
+    background-color: #e9ecef; /* Lighter hover effect */
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .reservation-table-bordered th, .reservation-table-bordered td {
+    border-color: #dee2e6; /* Lighter border color for tables */
+  }
+
+  /* Status Badges Styling */
+  .badge-warning {
+    background-color: #ffc107; /* Yellow for pending */
+    color: #343a40 !important;
+  }
+  .badge-success {
+    background-color: #28a745; /* Green for confirmed */
+    color: #ffffff !important;
+  }
+  .badge-danger {
+    background-color: #dc3545; /* Red for rejected */
+    color: #ffffff !important;
+  }
+  .badge-secondary {
+    background-color: #6c757d; /* Grey for other/unknown */
+    color: #ffffff !important;
+  }
+
+  .badge {
+    font-size: 0.9em;
+    padding: 0.4em 0.7em;
+    border-radius: 0.3rem;
+  }
+
+  .btn-group .btn {
+    border-radius: 0.25rem; /* Slightly rounded for individual buttons in group */
+  }
+
+  .btn-group .btn:first-child {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .btn-group .btn:last-child {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  .btn-group .btn:not(:first-child):not(:last-child) {
+    border-radius: 0;
+  }
+
+  /* Row coloring based on status */
+  .reservation-row-pending {
+    background-color: #fff3cd; /* Light yellow */
+  }
+  .reservation-row-confirmed {
+    background-color: #d4edda; /* Light green */
+  }
+  .reservation-row-rejected {
+    background-color: #f8d7da; /* Light red */
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  @media (max-width: 767.98px) {
+    .reservation-list-container .card {
+      padding: 1rem !important;
+    }
+    .reservation-table th, .reservation-table td {
+      font-size: 0.85rem;
+      padding: 0.5rem;
+    }
+    .badge {
+      font-size: 0.75em;
+      padding: 0.3em 0.5em;
+    }
+    .btn-group .btn {
+      font-size: 0.75rem;
+      padding: 0.3rem 0.5rem;
+    }
+  }
+</style>

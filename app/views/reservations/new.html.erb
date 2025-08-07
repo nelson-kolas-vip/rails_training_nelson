@@ -1,0 +1,183 @@
+<div class="container my-5 reservation-form-container">
+  <div class="card p-4 shadow-lg rounded-3 border-0">
+    <div class="card-header bg-success text-white text-center py-3 rounded-top">
+      <h2 class="mb-0 fs-3 fw-bold">
+        <i class="bi bi-calendar-check me-2"></i>Reserve a Table at <%= @restaurant.name %>
+      </h2>
+    </div>
+
+    <div class="card-body">
+
+      <% if flash[:notice] %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <i class="bi bi-check-circle-fill me-2"></i>
+          <%= flash[:notice] %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      <% end %>
+
+      <% if flash[:alert] %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          <%= flash[:alert] %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      <% end %>
+
+      <% if @reservation.errors.any? %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="bi bi-exclamation-circle me-2"></i>
+          <ul class="mb-0">
+            <% @reservation.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      <% end %>
+
+      <% if @preselected_table %>
+        <div class="alert alert-success d-flex align-items-center" role="alert">
+          <i class="bi bi-info-circle-fill me-2"></i>
+          <div>
+            Selected Table: <strong>#<%= @preselected_table.table_number %></strong>
+            (Seats: <%= @preselected_table.seating_capacity %>)
+          </div>
+        </div>
+      <% end %>
+
+      <%= simple_form_for([@restaurant, @reservation], html: { data: { turbo: false } }) do |f| %>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <%= f.input :reservation_date, as: :date, input_html: { class: "form-control", required: true }, label: "Date" %>
+          </div>
+
+          <div class="col-md-6">
+            <%= f.input :reservation_time, as: :time, input_html: { class: "form-control", required: true }, label: "Time" %>
+          </div>
+        </div>
+
+        <div class="row g-3 mt-3">
+          <div class="col-md-6">
+            <%= f.input :number_of_guests, input_html: { min: 1, max: @preselected_table.try(:seating_capacity) || 8, class: "form-control", required: true }, label: "Number of Guests" %>
+          </div>
+
+          <div class="col-md-6">
+            <%= f.input :table_id,
+                        collection: @tables.map { |t| ["Table ##{t.table_number} (Seats: #{t.seating_capacity})", t.id] },
+                        prompt: "Select a Table",
+                        input_html: {
+                          class: "form-select",
+                          disabled: @preselected_table.present?,
+                          required: true
+                        } %>
+          </div>
+
+          <% if @preselected_table.present? %>
+            <%= hidden_field_tag "reservation[table_id]", @preselected_table.id %>
+          <% end %>
+        </div>
+
+        <div class="row g-3 mt-3">
+          <div class="col-md-6">
+            <%= f.input :customer_name, input_html: { class: "form-control", required: true }, label: "Your Name" %>
+          </div>
+
+          <div class="col-md-6">
+            <%= f.input :customer_contact, input_html: { class: "form-control", required: true }, label: "Customer Email" %>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-4">
+          <%= f.button :submit, "Confirm Reservation", class: "btn btn-success btn-lg shadow-sm" do %>
+            <i class="bi bi-check-circle-fill me-2"></i> Confirm Reservation
+          <% end %>
+          <%= link_to "Back", restaurants_path, class: "btn btn-secondary btn-lg ms-2" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Custom CSS for Reservation Form */
+  .reservation-form-container {
+    background-color: #f8f9fa;
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .card {
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+
+  .card-header {
+    background-color: #198754 !important; /* Tailwind green-600 */
+    border-bottom: 0;
+  }
+
+  .btn-success {
+    background-color: #198754;
+    border-color: #198754;
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .btn-success:hover {
+    background-color: #157347;
+    border-color: #146c43;
+    transform: translateY(-2px);
+  }
+
+  .btn-secondary {
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .btn-secondary:hover {
+    transform: translateY(-2px);
+  }
+
+  .form-control, .form-select {
+    border-radius: 0.5rem;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease-in-out;
+  }
+
+  .form-control:focus, .form-select:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+  }
+
+  .alert-success {
+    color: #0f5132;
+    background-color: #d1e7dd;
+    border-color: #badbcc;
+    border-radius: 0.5rem;
+    animation: slideInLeft 0.5s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  @keyframes slideInLeft {
+    from {
+      transform: translateX(-10%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .reservation-form-container .card {
+      padding: 1rem !important;
+    }
+    .btn-lg {
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+  }
+</style>

@@ -88,6 +88,32 @@
         </div>
       </div>
     </div>
+    <div class="accordion-item bg-dark text-white border-0">
+      <h2 class="accordion-header" id="restaurantHeading">
+        <button class="accordion-button collapsed bg-dark text-white" type="button"
+                data-bs-toggle="collapse" data-bs-target="#restaurantCollapse"
+                aria-expanded="false" aria-controls="restaurantCollapse">
+          <i class="bi bi-shop-window me-2"></i>Restaurants
+        </button>
+      </h2>
+      <div id="restaurantCollapse" class="accordion-collapse collapse"
+           aria-labelledby="restaurantHeading" data-bs-parent="#sidebarAccordion">
+        <div class="accordion-body">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <%= link_to restaurants_path, class: "nav-link text-white sidebar-link" do %>
+                <i class="bi bi-list-ul me-2"></i>View All
+              <% end %>
+            </li>
+            <li class="nav-item">
+              <%= link_to new_restaurant_path, class: "nav-link text-white sidebar-link" do %>
+                <i class="bi bi-plus-circle me-2"></i>Create New
+              <% end %>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
   <% end %>
 
 </div>

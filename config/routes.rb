@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
+  get "reservations/index"
+  get "reservations/new"
   get "restaurants/new"
   get "restaurants/create"
   apipie
@@ -27,6 +30,12 @@ Rails.application.routes.draw do
   resources :restaurants do
     resources :tables, only: [:index, :new, :create, :edit, :update, :destroy]
     resources :menus, only: [:index, :new, :create, :edit, :update, :destroy], controller: "menus"
+    resources :reservations, only: [:index, :new, :create, :show, :update, :destroy] do
+      member do
+        patch :accept
+        patch :reject
+      end
+    end
   end
 
   # # Creating account

@@ -5,6 +5,7 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
   has_one_attached :avatar
   has_many :restaurants, dependent: :destroy
+  has_many :reservations
 
   enum :role_type, { admin: 1, staff: 2, customer: 3 }
   enum :status, { active: 1, inactive: 2 }

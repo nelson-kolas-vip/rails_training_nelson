@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_01_094918) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_05_082125) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -62,6 +62,23 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_01_094918) do
     t.datetime "updated_at", null: false
     t.integer "veg_status", default: 0, null: false
     t.index ["restaurant_id"], name: "index_menus_on_restaurant_id"
+  end
+
+  create_table "reservations", force: :cascade do |t|
+    t.date "reservation_date"
+    t.time "reservation_time"
+    t.integer "number_of_guests"
+    t.string "customer_name"
+    t.string "customer_contact"
+    t.bigint "restaurant_id", null: false
+    t.bigint "table_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "status", default: 0
+    t.index ["restaurant_id"], name: "index_reservations_on_restaurant_id"
+    t.index ["table_id"], name: "index_reservations_on_table_id"
+    t.index ["user_id"], name: "index_reservations_on_user_id"
   end
 
   create_table "restaurants", force: :cascade do |t|
@@ -119,6 +136,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_01_094918) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "menus", "restaurants"
+  add_foreign_key "reservations", "restaurants"
+  add_foreign_key "reservations", "tables"
+  add_foreign_key "reservations", "users"
   add_foreign_key "restaurants", "users"
   add_foreign_key "tables", "restaurants"
 end
