@@ -1,11 +1,124 @@
+<!-- app/views/restaurants/index.html.erb -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+  /* Custom Styles */
+  body {
+    background-color: #f8f9fa;
+  }
+
+  .restaurant-title-effect {
+    transition: all 0.3s ease-in-out;
+  }
+
+  .restaurant-title-effect:hover {
+    transform: translateY(-3px);
+    text-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  .card {
+    border: none;
+    border-radius: 1rem;
+    overflow: hidden;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  }
+
+  .card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  }
+
+  .card-body h5.card-title i {
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .card:hover h5.card-title i {
+    transform: rotate(10deg);
+  }
+
+  .card-footer {
+    padding: 1rem 1.5rem;
+  }
+
+  /* Buttons Styling */
+  .btn-group {
+    display: flex;
+    /* Removed 'gap: 0.5rem;' to remove space between buttons */
+    width: 100%;
+  }
+
+  .btn-group .btn {
+    flex-grow: 1; /* Make buttons grow to fill space */
+    border-radius: 0; /* Remove individual button border-radius for a continuous look */
+    font-weight: 600;
+    padding: 0.3rem 0; /* Smaller padding */
+    font-size: 0.9rem; /* Smaller font size */
+    text-align: center;
+    transition: all 0.2s ease-in-out;
+  }
+  .btn-group .btn:first-child {
+    border-top-left-radius: 0.5rem;
+    border-bottom-left-radius: 0.5rem;
+  }
+  .btn-group .btn:last-child {
+    border-top-right-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+  }
+  .btn-group .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+
+  /* Button Colors */
+  .btn-outline-primary {
+    color: #0d6efd;
+    border-color: #0d6efd;
+  }
+  .btn-outline-primary:hover {
+    background-color: #0d6efd;
+    color: #fff;
+  }
+  .btn-outline-success {
+    color: #198754;
+    border-color: #198754;
+  }
+  .btn-outline-success:hover {
+    background-color: #198754;
+    color: #fff;
+  }
+  .btn-outline-info {
+    color: #0dcaf0;
+    border-color: #0dcaf0;
+  }
+  .btn-outline-info:hover {
+    background-color: #0dcaf0;
+    color: #fff;
+  }
+  .btn-outline-danger {
+    color: #dc3545;
+    border-color: #dc3545;
+  }
+  .btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: #fff;
+  }
+
+  /* Icon Colors */
+  .icon-location { color: #dc3545; }
+  .icon-cuisine { color: #ffc107; }
+  .icon-description { color: #6c757d; }
+
+</style>
+
 <div class="container py-5">
   <h1 class="mb-5 text-center display-5 fw-bold restaurant-title-effect">
-    <i class="bi bi-shop-window text-info me-2"></i> <%# Changed icon color to text-info %>
+    <i class="bi bi-shop-window text-info me-2"></i>
     Explore Restaurants
   </h1>
 
   <% if @restaurants.blank? %>
-    <div class="alert alert-info text-center">
+    <div class="alert alert-info text-center" role="alert">
       <i class="bi bi-info-circle-fill me-2"></i>
       No restaurants found.
       <%= link_to "Create one now", new_restaurant_path, class: "text-decoration-underline fw-semibold" %>
@@ -14,39 +127,41 @@
     <div class="row g-4">
       <% @restaurants.each do |r| %>
         <div class="col-sm-12 col-md-6 col-lg-4">
-          <div class="card h-100 shadow border-0 hover-shadow-sm">
+          <div class="card h-100 shadow">
             <div class="card-body d-flex flex-column">
-              <h5 class="card-title text-dark mb-3"> <%# Changed restaurant name color to text-dark %>
-                <i class="bi bi-shop me-2"></i>
+              <h5 class="card-title text-dark mb-3">
+                <i class="bi bi-shop me-2 text-dark"></i>
                 <%= r.name.presence || "Unnamed Restaurant" %>
               </h5>
 
-              <div class="mb-2 text-muted">
-                <i class="bi bi-geo-alt-fill text-danger me-2"></i> <%# Changed icon color to text-info %>
+              <div class="mb-2">
+                <i class="bi bi-geo-alt-fill me-2 icon-location"></i>
                 <strong>Location:</strong>
                 <%= r.location.presence || "Not specified" %>
               </div>
 
-              <div class="mb-2 text-muted">
-                <i class="bi bi-egg-fried text-warning me-2"></i>
+              <div class="mb-2">
+                <i class="bi bi-egg-fried me-2 icon-cuisine"></i>
                 <strong>Cuisine:</strong>
                 <%= r.cuisine_type.presence || "Not specified" %>
               </div>
 
               <div class="text-secondary mt-auto">
-                <i class="bi bi-card-text me-2"></i>
+                <i class="bi bi-card-text me-2 icon-description"></i>
                 <%= truncate(r.description.to_s, length: 100) %>
               </div>
             </div>
 
-            <div class="card-footer bg-white border-0 d-flex justify-content-start">
+            <div class="card-footer bg-white border-0">
               <div class="btn-group">
-                <%# Removed w-45 class and added icons %>
-                <%= link_to restaurant_path(r), class: "btn btn-sm btn-outline-info button-hover-effect" do %>
-                  <i class="bi bi-eye me-1"></i> View
-                <% end %>
-                <%= link_to edit_restaurant_path(r), class: "btn btn-sm btn-outline-info button-hover-effect" do %>
-                  <i class="bi bi-pencil me-1"></i> Edit
+                <%# <%= link_to restaurant_path(r), class: "btn btn-outline-dark" do %> 
+                  <%# <i class="bi bi-eye me-1"></i> View 
+                <%# <% end 
+                <%# <%= link_to edit_restaurant_path(r), class: "btn btn-outline-dark" do %> 
+                  <%# <i class="bi bi-pencil me-1"></i> Edit %>
+                <%# <% end %> 
+                <%= link_to restaurant_tables_path(r), class: "btn btn-outline-dark" do %>
+                  <i class="bi bi-table me-1"></i> Tables
                 <% end %>
               </div>
             </div>
@@ -56,53 +171,3 @@
     </div>
   <% end %>
 </div>
-
-<%# Custom CSS for hover effect and new effects - ideally, this would be in your application.css or a dedicated stylesheet %>
-<style>
-    /* Card Hover Effect */
-    .hover-shadow-sm {
-        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-    }
-    .hover-shadow-sm:hover {
-        transform: translateY(-5px); /* Lifts the card slightly */
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important; /* Larger shadow on hover */
-    }
-
-    /* Card Footer Styling */
-    .card-footer {
-        min-height: 50px; /* Adjust as needed */
-        align-items: center; /* Vertically center content in footer */
-    }
-
-    /* Button Group Spacing - REMOVED custom margin-right to allow btn-group to handle spacing */
-    /* .btn-group .btn {
-        margin-right: 5px;
-    }
-    .btn-group .btn:last-child {
-        margin-right: 0;
-    } */
-
-    /* Main Title Hover Effect */
-    .restaurant-title-effect {
-        transition: text-shadow 0.3s ease-in-out;
-    }
-    .restaurant-title-effect:hover {
-        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2); /* Subtle text shadow on hover */
-    }
-
-    /* Button Hover Effect */
-    .button-hover-effect {
-        transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-    }
-    .button-hover-effect:hover {
-        transform: scale(1.03); /* Slightly scales up the button */
-    }
-    .btn-outline-primary.button-hover-effect:hover {
-        background-color: var(--bs-primary); /* Fills background with primary color */
-        color: white !important; /* Changes text color to white */
-    }
-    .btn-outline-secondary.button-hover-effect:hover {
-        background-color: var(--bs-secondary); /* Fills background with secondary color */
-        color: white !important; /* Changes text color to white */
-    }
-</style>

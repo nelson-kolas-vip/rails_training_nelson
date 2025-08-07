@@ -2,6 +2,7 @@ class Restaurant < ApplicationRecord
   include AASM
 
   belongs_to :user
+  has_many :tables, dependent: :destroy
 
   validates :name, :description, :location, :cuisine_type, presence: true
 

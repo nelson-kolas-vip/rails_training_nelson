@@ -83,6 +83,10 @@ gem 'active_interaction'
 gem 'fastimage'
 # gem 'image_processing', '~> 1.12'
 
+gem 'bootstrap-will_paginate', '~> 1.0.0'
+gem 'pry'
+gem 'will_paginate'
+
 gem 'aasm'
 
 group :development, :test do
