@@ -209,6 +209,16 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <%= form_with model: [@restaurant, Table.new], url: restaurant_tables_path(@restaurant), method: :post, local: true do |f| %>
+              <% if @restaurant.errors.any? %>
+                  <div class="alert alert-danger">
+                    <h5 class="alert-heading">Please fix the following errors:</h5>
+                    <ul class="mb-0">
+                      <% @restaurant.errors.full_messages.each do |msg| %>
+                        <li><%= msg %></li>
+                      <% end %>
+                    </ul>
+                  </div>
+              <% end %>
           <div class="modal-header bg-dark text-white">
             <h5 class="modal-title" id="newTableModalLabel"><i class="bi bi-plus-circle"></i> Create New Table</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
