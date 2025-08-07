@@ -21,6 +21,12 @@
 <% end %>
 
 <div class="container mt-5 text-center">
+  <% flash.each do |key, value| %>
+    <div class="alert alert-<%= key == "notice" ? "success" : "danger" %> alert-dismissible fade show" role="alert">
+      <%= value %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <% end %>
   <% if user_signed_in? %>
     <h1>Welcome back, <%= current_user.first_name.presence || current_user.email %>!</h1>
   <% else %>
