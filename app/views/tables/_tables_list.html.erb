@@ -1,0 +1,111 @@
+<div class="table-responsive">
+  <table class="table table-bordered table-hover table-striped">
+    <thead>
+      <tr>
+        <th><%= link_to "ID", restaurant_tables_path(@restaurant, status: params[:status], sort: 'id', search: params[:search]), data: { turbo_frame: "tables_list" }, class: "text-white text-decoration-none" %></th>
+        <th><%= link_to "Table Number", restaurant_tables_path(@restaurant, status: params[:status], sort: 'table_number', search: params[:search]), data: { turbo_frame: "tables_list" }, class: "text-white text-decoration-none" %></th>
+        <th><%= link_to "Seats", restaurant_tables_path(@restaurant, status: params[:status], sort: 'seating_capacity', search: params[:search]), data: { turbo_frame: "tables_list" }, class: "text-white text-decoration-none" %></th>
+        <th><%= link_to "Status", restaurant_tables_path(@restaurant, status: params[:status], sort: 'status', search: params[:search]), data: { turbo_frame: "tables_list" }, class: "text-white text-decoration-none" %></th>
+        <% if current_user&.staff? %>
+          <th>Actions</th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @tables.any? %>
+        <% @tables.each do |table| %>
+          <!-- Edit Table Modal -->
+          <div class="modal fade" id="editTableModal-<%= table.id %>" tabindex="-1" aria-labelledby="editTableModalLabel-<%= table.id %>" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <%= form_with model: [@restaurant, table], url: restaurant_table_path(@restaurant, table), method: :patch, local: true do |f| %>
+                  <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title" id="editTableModalLabel-<%= table.id %>">
+                      <i class="bi bi-pencil-square me-1"></i> Edit Table <%= table.table_number %>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+
+                  <div class="modal-body">
+                    <div class="mb-3">
+                      <%= f.label :table_number, "Table Number" %>
+                      <%= f.number_field :table_number, class: "form-control", required: true %>
+                    </div>
+
+                    <div class="mb-3">
+                      <%= f.label :seating_capacity, "Seating Capacity" %>
+                      <%= f.number_field :seating_capacity, class: "form-control", required: true %>
+                    </div>
+
+                    <div class="mb-3">
+                      <%= f.label :status, "Status" %>
+                      <%= f.select :status, Table.statuses.keys.map { |s| [s.titleize, s] }, {}, class: "form-select" %>
+                    </div>
+                  </div>
+
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <%= f.submit "Update Table", class: "btn btn-dark" %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+          <% row_class = "table-row-#{table.status}" %>
+          <tr class="<%= row_class %>">
+            <td><%= table.id %></td>
+            <td><%= table.table_number %></td>
+            <td><%= table.seating_capacity %></td>
+            <td>
+              <% status_icon_class = '' %>
+              <% status_bg_class = '' %>
+              <% case table.status
+                  when 'available'
+                    status_icon_class = 'bi-check-circle-fill'
+                    status_bg_class = 'badge-available'
+                  when 'occupied'
+                    status_icon_class = 'bi-person-fill-slash'
+                    status_bg_class = 'badge-occupied'
+                  when 'reserved'
+                    status_icon_class = 'bi-bookmark-fill'
+                    status_bg_class = 'badge-reserved'
+                  when 'cleaning'
+                    status_icon_class = 'bi-brush-fill'
+                    status_bg_class = 'badge-cleaning'
+                  else
+                    status_icon_class = 'bi-question-circle-fill'
+                    status_bg_class = 'bg-secondary'
+                  end %>
+              <span class="badge <%= status_bg_class %>">
+                <i class="bi <%= status_icon_class %>"></i>
+                <%= table.status.titleize %>
+              </span>
+            </td>
+            <% if current_user&.staff? %>
+              <td>
+                <div class="btn-group" role="group" aria-label="Table actions">
+                  <button class="btn btn-sm btn-outline-primary rounded-0" data-bs-toggle="modal" data-bs-target="#editTableModal-<%= table.id %>">
+                    <i class="bi bi-pencil-square"></i>
+                  </button>
+
+                  <%= button_to restaurant_table_path(@restaurant, table), method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-sm btn-outline-danger rounded-0" do %>
+                    <i class="bi bi-trash"></i>
+                  <% end %>
+                </div>
+              </td>
+            <% end %>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="4" class="text-center text-muted">No Tables found</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<!-- Pagination -->
+<div class="d-flex justify-content-center mt-4">
+  <%= will_paginate @tables, params: { search: params[:search] } %>
+</div>
