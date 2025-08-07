@@ -170,6 +170,11 @@
       <div class="col-md-4 detail-item">
         <i class="bi bi-star-fill icon-rating"></i> <strong>Rating:</strong> <%= @restaurant.rating %> / 5
       </div>
+      <% if current_user&.customer? %>
+        <%= link_to new_restaurant_feedback_path(request.original_url.to_s.split('/')[4], previous_url: request.original_url), class: "btn btn-sm btn-outline-dark" do %>
+        <i class="bi bi-chat-left-text me-1"></i> Write Feedback
+        <% end %>
+      <% end %>
     </div>
   </div>
 

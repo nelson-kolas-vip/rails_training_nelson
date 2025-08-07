@@ -29,15 +29,15 @@
 
   <% if current_user&.staff? %>
     <div class="accordion-item bg-dark text-white border-0">
-      <h2 class="accordion-header" id="restaurantHeading">
+      <h2 class="accordion-header" id="staffRestaurantHeading">
         <button class="accordion-button collapsed bg-dark text-white" type="button"
-                data-bs-toggle="collapse" data-bs-target="#restaurantCollapse"
-                aria-expanded="false" aria-controls="restaurantCollapse">
-          <i class="bi bi-shop-window me-2"></i>Restaurants
+                data-bs-toggle="collapse" data-bs-target="#staffRestaurantCollapse"
+                aria-expanded="false" aria-controls="staffRestaurantCollapse">
+          <i class="bi bi-shop-window me-2"></i>Restaurants (Staff)
         </button>
       </h2>
-      <div id="restaurantCollapse" class="accordion-collapse collapse"
-           aria-labelledby="restaurantHeading" data-bs-parent="#sidebarAccordion">
+      <div id="staffRestaurantCollapse" class="accordion-collapse collapse"
+           aria-labelledby="staffRestaurantHeading" data-bs-parent="#sidebarAccordion">
         <div class="accordion-body">
           <ul class="nav flex-column">
             <li class="nav-item">
@@ -58,15 +58,15 @@
 
   <% if current_user&.customer? %>
     <div class="accordion-item bg-dark text-white border-0">
-      <h2 class="accordion-header" id="ordersHeading">
+      <h2 class="accordion-header" id="customerOrdersHeading">
         <button class="accordion-button collapsed bg-dark text-white" type="button"
-                data-bs-toggle="collapse" data-bs-target="#ordersCollapse"
-                aria-expanded="false" aria-controls="ordersCollapse">
+                data-bs-toggle="collapse" data-bs-target="#customerOrdersCollapse"
+                aria-expanded="false" aria-controls="customerOrdersCollapse">
           <i class="bi bi-basket2 me-2"></i>Orders
         </button>
       </h2>
-      <div id="ordersCollapse" class="accordion-collapse collapse"
-           aria-labelledby="ordersHeading" data-bs-parent="#sidebarAccordion">
+      <div id="customerOrdersCollapse" class="accordion-collapse collapse"
+           aria-labelledby="customerOrdersHeading" data-bs-parent="#sidebarAccordion">
         <div class="accordion-body">
           <ul class="nav flex-column">
             <li class="nav-item">
@@ -89,25 +89,20 @@
       </div>
     </div>
     <div class="accordion-item bg-dark text-white border-0">
-      <h2 class="accordion-header" id="restaurantHeading">
+      <h2 class="accordion-header" id="customerRestaurantsHeading">
         <button class="accordion-button collapsed bg-dark text-white" type="button"
-                data-bs-toggle="collapse" data-bs-target="#restaurantCollapse"
-                aria-expanded="false" aria-controls="restaurantCollapse">
+                data-bs-toggle="collapse" data-bs-target="#customerRestaurantsCollapse"
+                aria-expanded="false" aria-controls="customerRestaurantsCollapse">
           <i class="bi bi-shop-window me-2"></i>Restaurants
         </button>
       </h2>
-      <div id="restaurantCollapse" class="accordion-collapse collapse"
-           aria-labelledby="restaurantHeading" data-bs-parent="#sidebarAccordion">
+      <div id="customerRestaurantsCollapse" class="accordion-collapse collapse"
+           aria-labelledby="customerRestaurantsHeading" data-bs-parent="#sidebarAccordion">
         <div class="accordion-body">
           <ul class="nav flex-column">
             <li class="nav-item">
               <%= link_to restaurants_path, class: "nav-link text-white sidebar-link" do %>
                 <i class="bi bi-list-ul me-2"></i>View All
-              <% end %>
-            </li>
-            <li class="nav-item">
-              <%= link_to new_restaurant_path, class: "nav-link text-white sidebar-link" do %>
-                <i class="bi bi-plus-circle me-2"></i>Create New
               <% end %>
             </li>
           </ul>
@@ -116,9 +111,41 @@
     </div>
   <% end %>
 
+  <% if current_user&.customer? || current_user&.staff? %>
+    <div class="accordion-item bg-dark text-white border-0">
+      <h2 class="accordion-header" id="feedbackHeading">
+        <button class="accordion-button collapsed bg-dark text-white" type="button"
+                data-bs-toggle="collapse" data-bs-target="#feedbackCollapse"
+                aria-expanded="false" aria-controls="feedbackCollapse">
+          <i class="bi bi-chat-right-text-fill me-2"></i>Feedback
+        </button>
+      </h2>
+      <div id="feedbackCollapse" class="accordion-collapse collapse"
+           aria-labelledby="feedbackHeading" data-bs-parent="#sidebarAccordion">
+        <div class="accordion-body">
+          <ul class="nav flex-column">
+            <% if current_user&.customer? %>
+              <li class="nav-item">
+                  <%= link_to new_feedback_path, class: "nav-link text-white sidebar-link" do %>
+                      <i class="bi bi-chat-left-text me-2"></i> Write Feedback (General)
+                  <% end %>
+              </li>
+            <% elsif current_user&.staff? %>
+              <li class="nav-item">
+                <%= link_to feedbacks_path, class: "nav-link text-white sidebar-link" do %>
+                    <i class="bi bi-file-spreadsheet me-2"></i> All Feedbacks
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
 </div>
 <style>
-    /* Overall Sidebar Styling */
+  /* Overall Sidebar Styling */
 #sidebarAccordion {
   background-color: #212529; /* Dark background for the whole accordion */
   border-radius: 8px; /* Slightly rounded corners for the sidebar */
