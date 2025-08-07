@@ -26,6 +26,9 @@ Rails.application.routes.draw do
     end
   end
   resource :avatar, only: [:edit, :update, :destroy]
+
+  resources :feedbacks, only: [:index, :new, :create]
+
   resources :restaurants, only: [:index, :new, :create, :show, :edit, :update]
   resources :restaurants do
     resources :tables, only: [:index, :new, :create, :edit, :update, :destroy]
@@ -36,6 +39,7 @@ Rails.application.routes.draw do
         patch :reject
       end
     end
+    resources :feedbacks, only: [:index, :new, :create], controller: "feedbacks"
   end
 
   # # Creating account

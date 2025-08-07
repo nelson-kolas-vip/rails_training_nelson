@@ -1,0 +1,128 @@
+<div class="container my-5 feedback-list-container">
+  <div class="card p-4 shadow-lg rounded-3 border-0">
+    <div class="card-header bg-dark text-white text-center py-3 rounded-top">
+      <h2 class="mb-0 fs-3 fw-bold">
+        <i class="bi bi-chat-left-text me-2"></i>
+        Customer Feedback
+        <% if @restaurant %>
+          for <%= @restaurant.name %>
+        <% end %>
+      </h2>
+    </div>
+
+    <div class="card-body">
+      <% if @feedbacks.any? %>
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped table-hover feedback-table">
+            <thead>
+              <tr>
+                <th>Sr. No.</th>
+                
+                <th>Customer Name</th>
+                <th>Restaurant Name</th>
+                <th>Comment</th>
+                <th>Rating</th>
+                <th>Posted On</th>
+                <th>Source URL</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @feedbacks.each_with_index do |feedback, index| %>
+                <tr>
+                  <td><%= index + 1 %></td>
+                  
+                  <td><%= feedback.customer_name %></td>
+                  <td class="<%= feedback.restaurant.blank? ? "text-danger" : "text-success" %>"><%= feedback.restaurant&.name || "General Feedback" %></td>
+                  <td><%= feedback.comment %></td>
+                  <td>
+                    <% feedback.rating.to_i.times do %>
+                      <i class="bi bi-star-fill text-warning"></i>
+                    <% end %>
+                    <% (5 - feedback.rating.to_i).times do %>
+                      <i class="bi bi-star text-muted"></i>
+                    <% end %>
+                    (<%= feedback.rating %> / 5)
+                  </td>
+                  <td><%= feedback.created_at.strftime("%b %d, %Y %I:%M %p") %></td>
+                  <td>
+                    <% if feedback.current_user_url.present? %>
+                      <%= link_to truncate(feedback.current_user_url, length: 30), feedback.current_user_url, target: "_blank", rel: "noopener noreferrer" %>
+                    <% else %>
+                      N/A
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <p class="text-center text-muted fs-5 mt-4">No feedback found<% if @restaurant %> for <%= @restaurant.name %><% end %>.</p>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Custom CSS for Feedback List */
+  .feedback-list-container {
+    background-color: #f8f9fa;
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .card {
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+
+  .card-header {
+    background-color: #343a40 !important; /* Dark color for header */
+    border-bottom: 0;
+  }
+
+  .feedback-table thead th {
+    background-color: #495057; /* Slightly lighter dark for table header */
+    color: #ffffff;
+    font-weight: 600;
+    vertical-align: middle;
+    padding: 0.8rem 1rem;
+    border-bottom: 2px solid #6c757d;
+  }
+
+  .feedback-table tbody tr {
+    transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+  }
+
+  .feedback-table tbody tr:hover {
+    background-color: #e9ecef; /* Lighter hover effect */
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .feedback-table-bordered th, .feedback-table-bordered td {
+    border-color: #dee2e6; /* Lighter border color for tables */
+  }
+
+  .text-warning {
+    color: #ffc107 !important; /* Bootstrap warning color for stars */
+  }
+
+  .text-muted {
+    color: #6c757d !important; /* Bootstrap muted color for empty stars */
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  @media (max-width: 767.98px) {
+    .feedback-list-container .card {
+      padding: 1rem !important;
+    }
+    .feedback-table th, .feedback-table td {
+      font-size: 0.85rem;
+      padding: 0.5rem;
+    }
+  }
+</style>

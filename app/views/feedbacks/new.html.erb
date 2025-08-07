@@ -1,0 +1,187 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<div class="container my-5 feedback-form-container">
+  <div class="card p-4 shadow-lg rounded-3 border-0">
+    <div class="card-header bg-dark text-white text-center py-3 rounded-top">
+      <h3 class="mb-0 fs-5 fw-normal">
+        Leave Feedback
+        <% if @restaurant %>
+          for <%= @restaurant.name %>
+        <% end %>
+      </h3>
+    </div>
+
+    <div class="card-body">
+      <% if flash[:alert] %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <%= flash[:alert] %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      <% end %>
+
+      <%= simple_form_for([@restaurant, @feedback].compact) do |f| %>
+        <div class="mb-3">
+          <label class="form-label">Rating</label>
+          <div id="star-rating" class="d-flex" data-current-rating="<%= f.object.rating || 0 %>">
+            <i class="fa fa-star fa-2x star" data-value="1"></i>
+            <i class="fa fa-star fa-2x star" data-value="2"></i>
+            <i class="fa fa-star fa-2x star" data-value="3"></i>
+            <i class="fa fa-star fa-2x star" data-value="4"></i>
+            <i class="fa fa-star fa-2x star" data-value="5"></i>
+          </div>
+          <%= f.input :rating, as: :hidden, input_html: { id: "feedback_rating_hidden" } %>
+        </div>
+
+        <%= f.input :comment, as: :text, input_html: { rows: 5, class: "form-control" }, label: "Your Comments" %>
+        <%= f.input :customer_name, input_html: { class: "form-control" }, label: "Your Name" %>
+
+        <%= f.input :current_user_url, as: :hidden, input_html: { value: params[:previous_url] } %>
+        <!-- HTML form -->
+        <%= hidden_field_tag :previous_url, params[:previous_url] %>
+
+
+
+        <div class="d-flex justify-content-between align-items-center mt-4">
+          <%= f.submit "Submit Feedback", class: "btn btn-dark btn-lg shadow-sm" %>
+          <%= link_to "Back", @restaurant ? restaurant_path(@restaurant) : root_path, class: "btn btn-secondary btn-lg ms-2" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+
+
+<style>
+  /* Custom CSS for Feedback Form */
+  .feedback-form-container {
+    background-color: #f8f9fa;
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .card {
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+
+  .card-header {
+    background-color: #212529 !important;
+    border-bottom: 0;
+  }
+
+  .btn-dark {
+    background-color: #212529;
+    border-color: #212529;
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .btn-dark:hover {
+    background-color: #000000;
+    border-color: #000000;
+    transform: translateY(-2px);
+  }
+
+  .btn-secondary {
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .btn-secondary:hover {
+    transform: translateY(-2px);
+  }
+
+  .form-control, .form-select {
+    border-radius: 0.5rem;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease-in-out;
+  }
+
+  .form-control:focus, .form-select:focus {
+    border-color: #212529;
+    box-shadow: 0 0 0 0.2rem rgba(33, 37, 41, 0.25);
+  }
+  
+  /* Star Rating Styles */
+  #star-rating {
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #e4e5e9; /* Default gray color for stars */
+  }
+
+  #star-rating .star {
+    padding: 0 5px;
+    transition: color 0.2s ease;
+  }
+
+  #star-rating .star.active,
+  #star-rating .star:hover {
+    color: gold; /* Color on hover or active state */
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  @media (max-width: 767.98px) {
+    .feedback-form-container .card {
+      padding: 1rem !important;
+    }
+    .btn-lg {
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const starRatingContainer = document.getElementById('star-rating');
+    const stars = starRatingContainer.querySelectorAll('.star');
+    const hiddenInput = document.getElementById('feedback_rating_hidden');
+    let currentRating = starRatingContainer.getAttribute('data-current-rating');
+
+    // Function to update star visuals based on a rating
+    const updateStars = (rating) => {
+      stars.forEach(star => {
+        if (star.getAttribute('data-value') <= rating) {
+          star.classList.add('active');
+        } else {
+          star.classList.remove('active');
+        }
+      });
+    };
+
+    // Set initial state from the hidden input's value
+    if (currentRating) {
+      updateStars(currentRating);
+    }
+
+    // Add click event listener to each star
+    stars.forEach(star => {
+      star.addEventListener('click', (e) => {
+        const value = e.target.getAttribute('data-value');
+        hiddenInput.value = value;
+        currentRating = value;
+        updateStars(currentRating);
+      });
+    });
+
+    // Add hover event listeners for a dynamic feel
+    starRatingContainer.addEventListener('mouseover', (e) => {
+      if (e.target.classList.contains('star')) {
+        const hoverValue = e.target.getAttribute('data-value');
+        stars.forEach(star => {
+          if (star.getAttribute('data-value') <= hoverValue) {
+            star.classList.add('active');
+          } else {
+            star.classList.remove('active');
+          }
+        });
+      }
+    });
+
+    // Restore to current rating when not hovering
+    starRatingContainer.addEventListener('mouseleave', () => {
+      updateStars(currentRating);
+    });
+  });
+</script>
