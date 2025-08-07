@@ -5,7 +5,7 @@ class Restaurant < ApplicationRecord
   has_many :tables, dependent: :destroy
 
   validates :name, :description, :location, :cuisine_type, presence: true
-
+  has_many :menus, dependent: :destroy
   aasm column: :status do
     state :open, initial: true
     state :closed

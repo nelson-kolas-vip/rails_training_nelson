@@ -26,6 +26,7 @@ Rails.application.routes.draw do
   resources :restaurants, only: [:index, :new, :create, :show, :edit, :update]
   resources :restaurants do
     resources :tables, only: [:index, :create]
+    resources :menus, only: [:index, :new, :create, :edit, :update, :destroy], controller: "menus"
   end
 
   # # Creating account
