@@ -9,7 +9,7 @@
     </div>
     <div class="offcanvas-body">
 
-      <%= render 'layouts/sidebar' %>
+      <%= render 'layouts/sidebar', restaurant: @restaurant %>
 
       <hr class="text-white">
       <%= button_to destroy_user_session_path, method: :delete, class: "btn btn-danger w-100 d-flex align-items-center justify-content-center gap-2" do %>

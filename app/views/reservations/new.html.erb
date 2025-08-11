@@ -49,9 +49,14 @@
       <%= simple_form_for([@restaurant, @reservation], html: { data: { turbo: false } }) do |f| %>
         <div class="row g-3">
           <div class="col-md-6">
-            <%= f.input :reservation_date, as: :date, input_html: { class: "form-control", required: true }, label: "Date" %>
+            <%= f.input :reservation_date, as: :date,
+                        input_html: {
+                          class: "form-control",
+                          required: true,
+                          min: Date.today
+                        },
+                        label: "Date" %>
           </div>
-
           <div class="col-md-6">
             <%= f.input :reservation_time, as: :time, input_html: { class: "form-control", required: true }, label: "Time" %>
           </div>
