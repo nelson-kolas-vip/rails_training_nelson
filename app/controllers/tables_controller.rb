@@ -1,19 +1,18 @@
 class TablesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_restaurant
+  before_action :set_table, only: [:edit, :update, :destroy]
 
   def index
-    @restaurant = Restaurant.find(params[:restaurant_id])
+    # All logic for fetching and filtering tables for the list
     @status_filter = params[:status]
     @search = params[:search]
     @sort_column = params[:sort] || 'table_number'
 
     @tables = @restaurant.tables
-    @tables = if current_user&.customer?
-                @restaurant.tables.available.paginate(page: params[:page], per_page: 5)
-              else
-                @restaurant.tables.paginate(page: params[:page], per_page: 10)
-              end
+
+    @tables = @tables.available if current_user&.customer?
+
     @tables = @tables.where(status: @status_filter) if @status_filter.present? && Table.statuses.key?(@status_filter)
 
     if @search.present?
@@ -25,33 +24,41 @@ class TablesController < ApplicationController
     end
 
     @tables = @tables.order(@sort_column).paginate(page: params[:page], per_page: 5)
+  end
 
-    respond_to do |format|
-      format.html
-      format.turbo_stream
-    end
+  def new
+    @table = @restaurant.tables.new
   end
 
   def create
     @table = @restaurant.tables.new(table_params)
     if @table.save
+      # On success, redirect back to the previous page.
       redirect_to restaurant_tables_path(@restaurant), notice: "Table created successfully."
     else
-      redirect_to restaurant_tables_path(@restaurant), alert: "Failed to create table."
+      # On failure, render the 'new' view again and set a flash alert.
+      flash.now[:alert] = "Failed to create table. Please check the errors below."
+      render :new, status: :unprocessable_entity
     end
   end
 
+  def edit
+    @table
+    # binding.pry
+  end
+
   def update
-    @table = @restaurant.tables.find(params[:id])
     if @table.update(table_params)
+      # On success, redirect to the index page and set a flash notice.
       redirect_to restaurant_tables_path(@restaurant), notice: "Table updated successfully."
     else
-      redirect_to restaurant_tables_path(@restaurant), alert: "Failed to update table."
+      # On failure, render the 'edit' view again to show errors.
+      flash.now[:alert] = "Failed to update table. Please check the errors below."
+      render :edit, status: :unprocessable_entity
     end
   end
 
   def destroy
-    @table = @restaurant.tables.find(params[:id])
     if @table.destroy
       redirect_to restaurant_tables_path(@restaurant), notice: "Table deleted successfully."
     else
@@ -67,5 +74,9 @@ class TablesController < ApplicationController
 
   def set_restaurant
     @restaurant = Restaurant.find(params[:restaurant_id])
+  end
+
+  def set_table
+    @table = @restaurant.tables.find(params[:id])
   end
 end

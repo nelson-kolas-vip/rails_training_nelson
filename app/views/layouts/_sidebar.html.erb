@@ -70,18 +70,14 @@
         <div class="accordion-body">
           <ul class="nav flex-column">
             <li class="nav-item">
-              <%= link_to "#", class: "nav-link text-white sidebar-link" do %>
-                <i class="bi bi-card-list me-2"></i>List Orders
+              <%= link_to my_reserved_tables_path(restaurant&.id), class: "nav-link text-white sidebar-link" do %>
+                <i class="bi bi-cart-plus"></i>Place Order
               <% end %>
+
             </li>
             <li class="nav-item">
               <%= link_to "#", class: "nav-link text-white sidebar-link" do %>
-                <i class="bi bi-hourglass-split me-2"></i>Current Orders
-              <% end %>
-            </li>
-            <li class="nav-item">
-              <%= link_to "#", class: "nav-link text-white sidebar-link" do %>
-                <i class="bi bi-archive me-2"></i>Past Orders
+                <i class="bi bi-card-list me-2"></i>All Orders
               <% end %>
             </li>
           </ul>

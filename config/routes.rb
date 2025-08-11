@@ -1,4 +1,9 @@
 Rails.application.routes.draw do
+  get "orders/index"
+  get "orders/new"
+  get "orders/create"
+  get "orders/edit"
+  get "orders/update"
   mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
   get "reservations/index"
   get "reservations/new"
@@ -40,7 +45,10 @@ Rails.application.routes.draw do
       end
     end
     resources :feedbacks, only: [:index, :new, :create], controller: "feedbacks"
+    resources :orders, only: [:index, :show, :edit, :update]
   end
+
+  get "/my_reserved_tables(/:restaurant_id)", to: "reservations#my_reserved_tables", as: :my_reserved_tables
 
   # # Creating account
   # get "/signup", to: "users#new", as: "sign_up"

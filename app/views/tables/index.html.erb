@@ -149,13 +149,6 @@
 <div class="container mt-5 restaurant-card">
   <h2 class="mb-4 text-center">Tables for <%= @restaurant.name %></h2>
 
-  <% flash.each do |key, value| %>
-    <div class="alert alert-<%= key == "notice" ? "success" : "danger" %> alert-dismissible fade show" role="alert">
-      <%= value %>
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-  <% end %>
-
 
   <!-- Restaurant Details Card -->
   <div class="restaurant-details-card">
@@ -196,59 +189,13 @@
   <% end %>
 
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h4 class="mb-0">Manage Tables</h4>
-    <% if current_user&.staff? %>
-      <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newTableModal">
-        <i class="bi bi-plus-circle me-1"></i> Add Table
-      </button>
+  <h4 class="mb-0">Manage Tables</h4>
+  <% if current_user&.staff? %>
+    <%= link_to new_restaurant_table_path(@restaurant), class: "btn btn-success" do %>
+      <i class="bi bi-plus-circle me-1"></i> Add Table
     <% end %>
-  </div>
-
-  <!-- Create Table Modal -->
-  <div class="modal fade" id="newTableModal" tabindex="-1" aria-labelledby="newTableModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <%= form_with model: [@restaurant, Table.new], url: restaurant_tables_path(@restaurant), method: :post, local: true do |f| %>
-              <% if @restaurant.errors.any? %>
-                  <div class="alert alert-danger">
-                    <h5 class="alert-heading">Please fix the following errors:</h5>
-                    <ul class="mb-0">
-                      <% @restaurant.errors.full_messages.each do |msg| %>
-                        <li><%= msg %></li>
-                      <% end %>
-                    </ul>
-                  </div>
-              <% end %>
-          <div class="modal-header bg-dark text-white">
-            <h5 class="modal-title" id="newTableModalLabel"><i class="bi bi-plus-circle"></i> Create New Table</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-
-          <div class="modal-body">
-            <div class="mb-3">
-              <%= f.label :table_number, "Table Number" %>
-              <%= f.number_field :table_number, class: "form-control", required: true %>
-            </div>
-
-            <div class="mb-3">
-              <%= f.label :seating_capacity, "Seating Capacity" %>
-              <%= f.number_field :seating_capacity, class: "form-control", required: true %>
-            </div>
-
-            <div class="mb-3">
-              <%= f.label :status, "Status" %>
-              <%= f.select :status, Table.statuses.keys.map { |s| [s.titleize, s] }, {}, class: "form-select" %>
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <%= f.submit "Create Table", class: "btn btn-dark" %>
-          </div>
-        <% end %>
-      </div>
-    </div>
-  </div>
+  <% end %>
+</div>
 
   <!-- Tables Listing -->
   
@@ -263,6 +210,12 @@
   </div>
 
   <!-- Turbo Frame for dynamic table update -->
+  <% flash.each do |key, value| %>
+    <div class="alert alert-<%= key == "notice" ? "success" : "danger" %> alert-dismissible fade show" role="alert">
+      <%= value %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <% end %>
   <%= turbo_frame_tag "tables_list" do %>
     <%= render "tables/tables_list" %>
   <% end %>

@@ -5,6 +5,7 @@ class MenusController < ApplicationController
   def index
     # Paginate the menus with a default of 12 items per page.
     @menus = @restaurant.menus.paginate(page: params[:page], per_page: 12)
+    @reservation = Reservation.find_by(id: params[:reservation_id]) if params[:reservation_id].present?
   end
 
   def new

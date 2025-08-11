@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_06_104319) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_07_105502) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -75,6 +75,23 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_06_104319) do
     t.datetime "updated_at", null: false
     t.integer "veg_status", default: 0, null: false
     t.index ["restaurant_id"], name: "index_menus_on_restaurant_id"
+  end
+
+  create_table "orders", force: :cascade do |t|
+    t.string "order_number", null: false
+    t.string "customer_name", null: false
+    t.jsonb "items", default: [], null: false
+    t.decimal "total_price", precision: 10, scale: 2, default: "0.0", null: false
+    t.bigint "user_id", null: false
+    t.bigint "restaurant_id", null: false
+    t.bigint "table_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "status", default: 0
+    t.index ["order_number"], name: "index_orders_on_order_number", unique: true
+    t.index ["restaurant_id"], name: "index_orders_on_restaurant_id"
+    t.index ["table_id"], name: "index_orders_on_table_id"
+    t.index ["user_id"], name: "index_orders_on_user_id"
   end
 
   create_table "reservations", force: :cascade do |t|
@@ -151,6 +168,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_06_104319) do
   add_foreign_key "feedbacks", "restaurants"
   add_foreign_key "feedbacks", "users"
   add_foreign_key "menus", "restaurants"
+  add_foreign_key "orders", "restaurants"
+  add_foreign_key "orders", "tables"
+  add_foreign_key "orders", "users"
   add_foreign_key "reservations", "restaurants"
   add_foreign_key "reservations", "tables"
   add_foreign_key "reservations", "users"

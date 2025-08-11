@@ -161,6 +161,41 @@
     transform: scale(1.05);
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   }
+
+  /* New Sidebar Styles */
+  .order-sidebar {
+    position: fixed;
+    top: 0;
+    right: -400px; /* Hidden by default */
+    width: 400px;
+    height: 100%;
+    background-color: #fff;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+    z-index: 1050;
+    transition: right 0.3s ease-in-out;
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+  }
+  .order-sidebar.show {
+    right: 0;
+  }
+
+  .order-item {
+    border-bottom: 1px solid #eee;
+    padding: 1rem 0;
+  }
+
+  .order-item:last-child {
+    border-bottom: none;
+  }
+
+  .order-item-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
 </style>
 
 <div class="container py-5">
@@ -177,8 +212,10 @@
       <i class="bi bi-journal-text me-3 fs-1"></i>
       Menu for <%= @restaurant.name %>
     </h2>
-    <%= link_to new_restaurant_menu_path(@restaurant), class: "btn btn-primary btn-lg add-item-btn" do %>
-      <i class="bi bi-plus-circle me-2"></i> Add Item
+    <% if current_user&.staff? %>
+      <%= link_to new_restaurant_menu_path(@restaurant), class: "btn btn-primary btn-lg add-item-btn" do %>
+        <i class="bi bi-plus-circle me-2"></i> Add Item
+      <% end %>
     <% end %>
   </div>
 
@@ -207,7 +244,7 @@
 
               <h6 class="card-subtitle menu-card-subtitle mb-2 text-muted">
                 <% case menu.category.to_s.downcase
-                   when 'starter' %>
+                    when 'starter' %>
                   <i class="bi bi-egg-fried text-warning me-2 fs-5"></i>
                 <% when 'main course' %>
                   <i class="bi bi-fork-knife icon-non-veg me-2 fs-5"></i>
@@ -232,9 +269,18 @@
                   <%= menu.available ? 'Available' : 'Not Available' %>
                 </span>
               </div>
+              <% if current_user&.customer? && menu.available && @reservation %>
+                <div class="d-flex align-items-center justify-content-between mt-3">
+                  <div class="input-group w-50 me-2">
+                    <button class="btn btn-outline-secondary btn-minus" type="button" data-menu-id="<%= menu.id %>" data-price="<%= menu.price %>" data-item-name="<%= menu.item_name %>">-</button>
+                    <input type="text" class="form-control text-center menu-quantity-<%= menu.id %>" value="0" readonly>
+                    <button class="btn btn-outline-secondary btn-plus" type="button" data-menu-id="<%= menu.id %>" data-price="<%= menu.price %>" data-item-name="<%= menu.item_name %>">+</button>
+                  </div>
+                </div>
+              <% end %>
             </div>
 
-            <% if menu.persisted? %>
+            <% if menu.persisted? && current_user&.staff? %>
               <div class="card-footer">
                 <div class="btn-group">
                   <%= link_to edit_restaurant_menu_path(@restaurant, menu), class: "btn btn-outline-primary" do %>
@@ -256,4 +302,180 @@
   <div class="d-flex justify-content-center mt-4">
     <%= will_paginate @menus, class: 'pagination' %>
   </div>
+
+  <%# The Order Sidebar %>
+  <div id="orderSidebar" class="order-sidebar">
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+      <h3 class="h5 fw-bold mb-0">Your Order</h3>
+      <button class="btn-close" onclick="closeSidebar()"></button>
+    </div>
+    
+    <div id="orderItems" class="flex-grow-1 overflow-auto">
+      <p id="emptyCartMessage" class="text-muted text-center mt-3">Your cart is empty.</p>
+    </div>
+
+    <div class="mt-auto pt-3 border-top">
+      <div class="d-flex justify-content-between fw-bold fs-5 mb-3">
+        <span>Total:</span>
+        <span id="orderTotal">$0.00</span>
+      </div>
+      <% if current_user&.customer? %>
+        <%= button_to "Place Order", restaurant_orders_path(@restaurant), method: :post, params: { order: { items: [], total_price: 0, customer_name: current_user.first_name, table_id: @reservation&.table&.id || nil} }, class: "btn btn-primary btn-lg w-100", id: "placeOrderButton", disabled: true %>
+      <% end %>
+    </div>
+  </div>
 </div>
+
+<!-- JavaScript for sidebar functionality -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    let order = [];
+    const orderItemsContainer = document.getElementById('orderItems');
+    const orderTotalElement = document.getElementById('orderTotal');
+    const emptyCartMessage = document.getElementById('emptyCartMessage');
+    const orderSidebar = document.getElementById('orderSidebar');
+    const placeOrderButton = document.getElementById('placeOrderButton');
+
+    // Function to find an item in the order array by menuId
+    const findItem = (menuId) => {
+      return order.find(item => item.menu_id === menuId);
+    };
+
+    // Function to calculate the total price of the order
+    const calculateTotal = () => {
+      let total = 0;
+      order.forEach(item => {
+        total += item.price * item.quantity;
+      });
+      return total;
+    };
+
+    // Function to update the sidebar's visual state
+    const updateSidebar = () => {
+      orderItemsContainer.innerHTML = '';
+      const total = calculateTotal();
+
+      if (order.length === 0) {
+        emptyCartMessage.style.display = 'block';
+        placeOrderButton.disabled = true;
+      } else {
+        emptyCartMessage.style.display = 'none';
+        order.forEach((item, index) => {
+          const itemElement = document.createElement('div');
+          itemElement.className = 'd-flex justify-content-between align-items-center py-2 order-item';
+          itemElement.innerHTML = `
+            <div>
+              <h6 class="mb-0 fw-bold">${item.item_name}</h6>
+              <small class="text-muted">Unit Price: $${item.price.toFixed(2)}</small>
+            </div>
+            <div class="d-flex align-items-center">
+              <div class="input-group input-group-sm w-auto me-2">
+                <button class="btn btn-outline-secondary btn-sidebar-minus" type="button" data-index="${index}" data-menu-id="${item.menu_id}">-</button>
+                <input type="text" class="form-control text-center" value="${item.quantity}" readonly style="width: 40px;">
+                <button class="btn btn-outline-secondary btn-sidebar-plus" type="button" data-index="${index}" data-menu-id="${item.menu_id}">+</button>
+              </div>
+              <button class="btn btn-sm btn-outline-danger btn-remove" data-index="${index}"><i class="bi bi-x"></i></button>
+            </div>
+          `;
+          orderItemsContainer.appendChild(itemElement);
+        });
+        placeOrderButton.disabled = false;
+      }
+      orderTotalElement.textContent = `$${total.toFixed(2)}`;
+      orderSidebar.classList.add('show');
+      
+      // Update the hidden form fields for submission
+      updateOrderForm(total);
+    };
+
+    // Function to add or update an item in the order
+    const updateItemInOrder = (menuId, itemName, price, quantityChange) => {
+      const existingItem = findItem(menuId);
+
+      if (existingItem) {
+        existingItem.quantity += quantityChange;
+        if (existingItem.quantity <= 0) {
+          order = order.filter(item => item.menu_id !== menuId);
+        }
+      } else if (quantityChange > 0) {
+        order.push({ menu_id: menuId, item_name: itemName, price: price, quantity: quantityChange });
+      }
+      updateSidebar();
+    };
+    
+    // Function to remove an item from the order
+    const removeItemFromOrder = (index) => {
+      order.splice(index, 1);
+      updateSidebar();
+    };
+
+    // Event listener for quantity buttons on menu cards
+    document.querySelectorAll('.btn-plus, .btn-minus').forEach(button => {
+      button.addEventListener('click', () => {
+        const menuId = parseInt(button.getAttribute('data-menu-id'));
+        const itemName = button.getAttribute('data-item-name');
+        const price = parseFloat(button.getAttribute('data-price'));
+        const quantityChange = button.classList.contains('btn-plus') ? 1 : -1;
+        updateItemInOrder(menuId, itemName, price, quantityChange);
+      });
+    });
+
+    // Event listeners for buttons within the sidebar
+    orderItemsContainer.addEventListener('click', (e) => {
+      if (e.target.closest('.btn-sidebar-plus')) {
+        const index = parseInt(e.target.closest('.btn-sidebar-plus').getAttribute('data-index'));
+        order[index].quantity += 1;
+        updateSidebar();
+      } else if (e.target.closest('.btn-sidebar-minus')) {
+        const index = parseInt(e.target.closest('.btn-sidebar-minus').getAttribute('data-index'));
+        order[index].quantity -= 1;
+        if (order[index].quantity <= 0) {
+          removeItemFromOrder(index);
+        }
+        updateSidebar();
+      } else if (e.target.closest('.btn-remove')) {
+        const index = parseInt(e.target.closest('.btn-remove').getAttribute('data-index'));
+        removeItemFromOrder(index);
+      }
+    });
+
+    // Function to update the hidden form fields for submission
+    const updateOrderForm = (total) => {
+      const form = document.getElementById('placeOrderButton').closest('form');
+      
+      // We need to clear and rebuild the hidden inputs for the items
+      let oldItems = form.querySelectorAll('input[name^="order[items]"]');
+      oldItems.forEach(item => item.remove());
+
+      order.forEach((item, index) => {
+        const itemsInput = document.createElement('input');
+        itemsInput.type = 'hidden';
+        itemsInput.name = `order[items][${index}][menu_id]`;
+        itemsInput.value = item.menu_id;
+        form.appendChild(itemsInput);
+
+        const quantityInput = document.createElement('input');
+        quantityInput.type = 'hidden';
+        quantityInput.name = `order[items][${index}][quantity]`;
+        quantityInput.value = item.quantity;
+        form.appendChild(quantityInput);
+        
+        const priceInput = document.createElement('input');
+        priceInput.type = 'hidden';
+        priceInput.name = `order[items][${index}][total_item_price]`;
+        priceInput.value = (item.price * item.quantity).toFixed(2);
+        form.appendChild(priceInput);
+      });
+
+      // Update total price and customer name
+      const totalPriceInput = form.querySelector('input[name="order[total_price]"]');
+      totalPriceInput.value = total.toFixed(2);
+    };
+  });
+
+  // Global function to close the sidebar
+  function closeSidebar() {
+    const orderSidebar = document.getElementById('orderSidebar');
+    orderSidebar.classList.remove('show');
+  }
+</scri

@@ -131,6 +131,16 @@ class ReservationsController < ApplicationController
     end
   end
 
+  def my_reserved_tables
+    @restaurant = Restaurant.find_by(id: params[:restaurant_id])
+
+    @reservations = if @restaurant
+                      current_user.reservations.where(restaurant: @restaurant, status: :confirmed).order(reservation_date: :asc, reservation_time: :asc)
+                    else
+                      current_user.reservations.where(status: :confirmed).order(reservation_date: :asc, reservation_time: :asc)
+                    end
+  end
+
   private
 
   def set_restaurant

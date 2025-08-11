@@ -1,0 +1,43 @@
+<div class="container mt-4">
+  <h2 class="mb-4">
+    Reserved Tables
+    <% if @restaurant %>
+      for <%= @restaurant.name %>
+    <% end %>
+  </h2>
+
+  <% if @reservations.any? %>
+    <table class="table table-bordered table-striped">
+      <thead class="thead-dark">
+        <tr>
+          <th>Table Number</th>
+          <th>Seats</th>
+          <th>Reservation Date</th>
+          <th>Reservation Time</th>
+          <th>Status</th>
+          <th>Restaurant</th>
+          <th>Orders Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @reservations.each do |reservation| %>
+          <tr>
+            <td><%= reservation.table.table_number %></td>
+            <td><%= reservation.table.seating_capacity %></td>
+            <td><%= reservation.reservation_date.strftime("%d-%m-%Y") %></td>
+            <td><%= reservation.reservation_time.strftime("%I:%M %p") %></td>
+            <td><%= reservation.status.titleize %></td>
+            <td><%= reservation.restaurant.name %></td>
+            <td>
+                <%= link_to "Place Order", restaurant_menus_path(reservation.restaurant, reservation_id: reservation.id), class: "btn btn-outline-dark" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <div class="alert alert-warning" role="alert">
+      No reserved tables found.
+    </div>
+  <% end %>
+</div>

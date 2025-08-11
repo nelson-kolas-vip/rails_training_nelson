@@ -2,7 +2,19 @@ class RestaurantsController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    @restaurants = Restaurant.all
+    @restaurants = case params[:sort]
+                   when 'rating'
+                     Restaurant.left_joins(:feedbacks)
+                               .group('restaurants.id')
+                               .order(Arel.sql("coalesce(avg(feedbacks.rating), 0) DESC"))
+                               .paginate(page: params[:page], per_page: 10)
+                   when 'name'
+
+                     Restaurant.order(name: :asc).paginate(page: params[:page], per_page: 10)
+                   else
+
+                     Restaurant.all.order(created_at: :desc).paginate(page: params[:page], per_page: 10)
+                   end
   end
 
   def new

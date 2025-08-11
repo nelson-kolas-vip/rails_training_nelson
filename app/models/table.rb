@@ -1,6 +1,7 @@
 class Table < ApplicationRecord
   belongs_to :restaurant
   has_many :reservations
+  has_many :orders, dependent: :nullify
 
   enum :status, { available: 0, occupied: 1, reserved: 2, under_reservation: 3 }
   validates :table_number, presence: true, numericality: { only_integer: true }

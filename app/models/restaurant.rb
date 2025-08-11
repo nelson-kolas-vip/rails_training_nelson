@@ -5,6 +5,7 @@ class Restaurant < ApplicationRecord
   has_many :tables, dependent: :destroy
   has_many :reservations
   has_many :feedbacks
+  has_many :orders, dependent: :destroy
 
   validates :name, :description, :location, :cuisine_type, presence: true
   has_many :menus, dependent: :destroy
