@@ -1,78 +1,112 @@
 require 'rails_helper'
 
-RSpec.describe 'API::V1::Users#update', type: :request do
-  let!(:user) { create(:user, email: 'john@example.com', password: 'happyface', password_confirmation: 'happyface') }
-  let(:headers) { { 'Content-Type': 'application/json' } }
+RSpec.describe 'PUT /api/v1/users/:id', type: :request do
+  let!(:user) { create(:user, first_name: 'John', email: 'john.doe@example.com', age: 30, date_of_birth: '1994-01-20') }
+  let!(:another_user) { create(:user, email: 'jane.doe@example.com') }
+  # Create a token to be used for authorization
+  let!(:token) { create(:token) }
+  let(:auth_headers) do
+    {
+      'Content-Type' => 'application/json',
+      'Authorization' => token.value
+    }
+  end
 
-  describe 'PUT /api/v1/users/:id' do
-    context 'with valid parameters' do
-      let(:valid_params) do
-        {
-          first_name: 'UpdatedName',
-          last_name: 'UpdatedLast',
-          email: 'new_email@example.com',
-          phone_number: '9876543210',
-          age: 30
-        }
-      end
+  let(:base_attributes) do
+    {
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      phone_number: user.phone_number,
+      password: 'password123',
+      password_confirmation: 'password123',
+      age: user.age,
+      date_of_birth: user.date_of_birth.to_s
+    }
+  end
 
-      it 'updates the user and returns 200 OK' do
-        put "/api/v1/users/#{user.id}", params: valid_params.to_json, headers: headers
+  # --- Positive Test Cases ---
+  describe 'with valid parameters' do
+    context 'when updating multiple fields' do
+      let(:update_params) { base_attributes.merge(first_name: 'Johnny', last_name: 'Doer') }
+
+      it 'updates the user and returns a 200 OK status' do
+        put "/api/v1/users/#{user.id}", params: update_params.to_json, headers: auth_headers
 
         expect(response).to have_http_status(:ok)
+        user.reload
+        expect(user.first_name).to eq('Johnny')
+        expect(user.last_name).to eq('Doer')
+      end
 
+      it 'returns the updated user data' do
+        put "/api/v1/users/#{user.id}", params: update_params.to_json, headers: auth_headers
         json = JSON.parse(response.body)
-        expect(json['first_name']).to eq('UpdatedName')
-        expect(json['email']).to eq('new_email@example.com')
+        expect(json['first_name']).to eq('Johnny')
       end
     end
 
-    context 'with only one field provided' do
-      it 'updates only that field and leaves others unchanged' do
-        put "/api/v1/users/#{user.id}", params: { last_name: 'SoloChange' }.to_json, headers: headers
+    context 'when updating a single field' do
+      it 'updates only that field and returns the updated user' do
+        update_params = base_attributes.merge(first_name: 'Jonathan')
+        put "/api/v1/users/#{user.id}", params: update_params.to_json, headers: auth_headers
 
         expect(response).to have_http_status(:ok)
-
         json = JSON.parse(response.body)
-        expect(json['last_name']).to eq('SoloChange')
-        expect(json['email']).to eq('john@example.com') # unchanged
+        expect(json['first_name']).to eq('Jonathan')
+        expect(json['email']).to eq(user.email)
       end
     end
 
-    context 'with invalid ID' do
-      it 'returns 404 not found' do
-        put '/api/v1/users/999999', params: { first_name: 'Ghost' }.to_json, headers: headers
+    context 'when updating the password correctly' do
+      let(:password_params) { base_attributes.merge(password: 'newSecurePassword123', password_confirmation: 'newSecurePassword123') }
+      it 'updates the user password and returns 200 OK' do
+        put "/api/v1/users/#{user.id}", params: password_params.to_json, headers: auth_headers
+        expect(response).to have_http_status(:ok)
+      end
+    end
+  end
 
+  # --- Negative Test Cases ---
+  describe 'with invalid parameters' do
+    context 'when the user ID is invalid' do
+      it 'returns a 404 Not Found status' do
+        put '/api/v1/users/99999', params: base_attributes.to_json, headers: auth_headers
         expect(response).to have_http_status(:not_found)
+      end
 
+      it 'returns a "User not found" error message' do
+        put '/api/v1/users/99999', params: base_attributes.to_json, headers: auth_headers
         json = JSON.parse(response.body)
         expect(json['errors']).to include('User not found')
       end
     end
 
-    context 'with invalid password confirmation' do
-      it 'returns validation error (422)' do
-        put "/api/v1/users/#{user.id}", params: {
-          password: 'newpassword',
-          password_confirmation: 'newpassword123'
-        }.to_json, headers: headers
-
+    context 'when email is invalid' do
+      it 'returns a 422 Unprocessable Entity status' do
+        update_params = base_attributes.merge(email: 'not-an-email')
+        put "/api/v1/users/#{user.id}", params: update_params.to_json, headers: auth_headers
         expect(response).to have_http_status(:unprocessable_entity)
-
-        json = JSON.parse(response.body)
-        expect(json['errors']).to include("Password confirmation doesn't match Password")
       end
     end
 
-    context 'with empty payload' do
-      it 'returns 200 and does not change the user' do
-        old_name = user.first_name
-
-        put "/api/v1/users/#{user.id}", params: {}.to_json, headers: headers
-
-        expect(response).to have_http_status(:ok)
+    context 'when email is already taken by another user' do
+      it 'returns a 422 Unprocessable Entity status' do
+        update_params = base_attributes.merge(email: another_user.email)
+        put "/api/v1/users/#{user.id}", params: update_params.to_json, headers: auth_headers
+        expect(response).to have_http_status(:unprocessable_entity)
         json = JSON.parse(response.body)
-        expect(json['first_name']).to eq(old_name)
+        expect(json['errors']).to include('Email has already been taken')
+      end
+    end
+
+    context 'when password confirmation does not match' do
+      let(:invalid_password_params) { base_attributes.merge(password: 'newPassword', password_confirmation: 'wrongConfirmation') }
+      it 'returns a 422 Unprocessable Entity status' do
+        put "/api/v1/users/#{user.id}", params: invalid_password_params.to_json, headers: auth_headers
+        expect(response).to have_http_status(:unprocessable_entity)
+        json = JSON.parse(response.body)
+        expect(json['errors']).to include("Password confirmation doesn't match Password")
       end
     end
   end

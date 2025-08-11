@@ -21,7 +21,6 @@ RSpec.describe "User Sign In", type: :feature do
     fill_in "Password", with: "wrongpass"
 
     click_button "Sign In"
-
     expect(page).to have_content(/Invalid email or password/i)
   end
 end
