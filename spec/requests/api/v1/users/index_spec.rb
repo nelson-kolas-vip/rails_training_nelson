@@ -1,123 +1,101 @@
 require 'rails_helper'
 
-# This will Disable apipie param validation in tests
-Apipie.configuration.validate = false if defined?(Apipie)
+RSpec.describe 'GET /api/v1/users', type: :request do
+  # Create a set of users with distinct attributes for effective filter testing
+  let!(:user1) { create(:user, first_name: 'John', last_name: 'Doe', email: 'john.doe@example.com') }
+  let!(:user2) { create(:user, first_name: 'Jane', last_name: 'Smith', email: 'jane.smith@example.com') }
+  let!(:user3) { create(:user, first_name: 'Johnny', last_name: 'Rocket', email: 'johnny.r@example.com') }
 
-RSpec.describe 'POST /api/v1/users', type: :request do
-  # --- Positive Test Cases ---
-
-  let(:valid_attributes) do
-    {
-      first_name: 'Dummy',
-      last_name: 'Doe',
-      email: Faker::Internet.unique.email,
-      phone_number: '1234567890',
-      password: 'rails@123',
-      password_confirmation: 'rails@123',
-      age: 30,
-      date_of_birth: '1995-01-01'
-    }
-  end
-
-  let(:headers) do
-    { "CONTENT_TYPE" => "application/json" }
-  end
-
-  describe 'with valid params' do
-    it 'creates a new user and returns a 201 status' do
-      # Expect the User count to increase by 1 after the POST request
-      expect do
-        post '/api/v1/users', params: valid_attributes.to_json, headers: headers
-      end.to change(User, :count).by(1)
-
-      # Check for the correct HTTP status code
-      expect(response).to have_http_status(:created)
-
-      # Parse the response and verify the created user's data
+  context 'without any filters' do
+    it 'returns all users' do
+      get '/api/v1/users'
+      expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
-      expect(json['email']).to eq(valid_attributes[:email])
-      expect(json['first_name']).to eq(valid_attributes[:first_name])
+      expect(json.size).to eq(3)
     end
   end
 
-  # --- Negative Test Cases ---
-
-  describe 'with invalid params' do
-    # Helper to perform the request and check the outcome
-    def post_with_invalid_attributes(attributes)
-      expect do
-        post '/api/v1/users', params: attributes.to_json, headers: headers
-      end.not_to change(User, :count)
-      expect(response).to have_http_status(:unprocessable_entity)
+  context 'with filters' do
+    it 'filters by first_name (partial match)' do
+      get '/api/v1/users', params: { first_name: 'John' }
+      json = JSON.parse(response.body)
+      expect(json.size).to eq(2)
+      expect(json.map { |u| u['id'] }).to contain_exactly(user1.id, user3.id)
     end
 
-    context 'when first_name is missing' do
-      it 'does not create a user and returns an error' do
-        invalid_attributes = valid_attributes.except(:first_name)
-        post_with_invalid_attributes(invalid_attributes)
-        json = JSON.parse(response.body)
-        expect(json['errors']).to include("First name is required")
-      end
+    it 'filters by last_name (exact match)' do
+      get '/api/v1/users', params: { last_name: 'Smith' }
+      json = JSON.parse(response.body)
+      expect(json.size).to eq(1)
+      expect(json.first['id']).to eq(user2.id)
     end
 
-    context 'when last_name is missing' do
-      it 'does not create a user and returns an error' do
-        invalid_attributes = valid_attributes.except(:last_name)
-        post_with_invalid_attributes(invalid_attributes)
-        json = JSON.parse(response.body)
-        expect(json['errors']).to include("Last name is required")
-      end
+    it 'filters by email (partial match)' do
+      get '/api/v1/users', params: { email: 'example.com' }
+      json = JSON.parse(response.body)
+      expect(json.size).to eq(3)
     end
 
-    context 'when email is blank' do
-      it 'does not create a user and returns an error' do
-        invalid_attributes = valid_attributes.merge(email: '')
-        post_with_invalid_attributes(invalid_attributes)
-        json = JSON.parse(response.body)
-        expect(json['errors']).to include("Email can't be blank")
-      end
+    it 'filters by multiple parameters' do
+      get '/api/v1/users', params: { first_name: 'John', last_name: 'Doe' }
+      json = JSON.parse(response.body)
+      expect(json.size).to eq(1)
+      expect(json.first['id']).to eq(user1.id)
     end
 
-    context 'when email is already taken' do
-      # Create a user with the same email before the test
-      before { User.create!(valid_attributes) }
+    it 'returns an empty array when no users match the filter' do
+      get '/api/v1/users', params: { first_name: 'Kevin' }
+      json = JSON.parse(response.body)
+      expect(response).to have_http_status(:ok)
+      expect(json).to be_empty
+    end
+  end
 
-      it 'returns a duplicate email error' do
-        # We don't need the helper here as the expectation is slightly different
-        expect do
-          post '/api/v1/users', params: valid_attributes.to_json, headers: headers
-        end.not_to change(User, :count)
-
-        expect(response).to have_http_status(:unprocessable_entity)
-        json = JSON.parse(response.body)
-        expect(json['errors']).to include('Email has already been taken')
-      end
+  context 'with edge cases and negative filter scenarios' do
+    it 'is case-insensitive when filtering by first_name' do
+      get '/api/v1/users', params: { first_name: 'john' }
+      json = JSON.parse(response.body)
+      expect(json.size).to eq(2)
+      expect(json.map { |u| u['first_name'] }).to contain_exactly('John', 'Johnny')
     end
 
-    context 'when password is missing' do
-      it 'does not create a user and returns an error' do
-        invalid_attributes = valid_attributes.except(:password)
-        post_with_invalid_attributes(invalid_attributes)
-        json = JSON.parse(response.body)
-        expect(json['errors']).to include("Password is required")
-      end
+    it 'is case-insensitive when filtering by email' do
+      get '/api/v1/users', params: { email: 'JANE.SMITH@EXAMPLE.COM' }
+      json = JSON.parse(response.body)
+      expect(json.size).to eq(1)
+      expect(json.first['id']).to eq(user2.id)
     end
 
-    context 'when password confirmation does not match' do
-      it 'does not create a user and returns an error' do
-        invalid_attributes = valid_attributes.merge(password_confirmation: 'wrongpassword')
-        post_with_invalid_attributes(invalid_attributes)
-        json = JSON.parse(response.body)
-        expect(json['errors']).to include("Password confirmation doesn't match Password")
-      end
+    it 'returns an empty array for conflicting filters' do
+      get '/api/v1/users', params: { first_name: 'John', last_name: 'Smith' }
+      json = JSON.parse(response.body)
+      expect(json).to be_empty
     end
 
-    context "when a request method is not allowed" do
-      it "returns 405 Method Not Allowed (if restricted)" do
-        expect do
-          post "/api/v1/users"
-        end
-      end
+    it 'does not return sensitive data in the user list' do
+      get '/api/v1/users'
+      json = JSON.parse(response.body)
+      expect(json.first).not_to have_key('password')
+      expect(json.first).not_to have_key('encrypted_password')
     end
+
+    it 'correctly filters by a more specific first name' do
+      get '/api/v1/users', params: { first_name: 'Jane' }
+      json = JSON.parse(response.body)
+      expect(json.size).to eq(1)
+      expect(json.first['id']).to eq(user2.id)
+    end
+
+    it 'filters by a partial string in the middle of an email' do
+      get '/api/v1/users', params: { email: 'doe@exam' }
+      json = JSON.parse(response.body)
+      expect(json.size).to eq(1)
+      expect(json.first['id']).to eq(user1.id)
+    end
+  end
+
+  it 'returns the response in JSON format' do
+    get '/api/v1/users'
+    expect(response.content_type).to eq('application/json; charset=utf-8')
   end
 end

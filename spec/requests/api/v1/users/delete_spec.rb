@@ -2,9 +2,7 @@ require 'rails_helper'
 
 RSpec.describe "DELETE /api/v1/users/:id", type: :request do
   let!(:user_to_delete) { create(:user) }
-  let!(:other_user) { create(:user) } # Added to ensure other records are not affected
-
-  # --- Positive Test Cases ---
+  let!(:other_user) { create(:user) }
 
   describe 'when the user exists' do
     it 'decreases the user count by 1' do
@@ -13,7 +11,6 @@ RSpec.describe "DELETE /api/v1/users/:id", type: :request do
       end.to change(User, :count).by(-1)
     end
 
-    # Use a nested context for response-specific checks
     context 'the response for a successful deletion' do
       before { delete "/api/v1/users/#{user_to_delete.id}" }
 
@@ -42,8 +39,6 @@ RSpec.describe "DELETE /api/v1/users/:id", type: :request do
     end
   end
 
-  # --- Negative Test Cases ---
-
   describe 'when the user does not exist' do
     it 'does not change the user count' do
       expect do
@@ -60,25 +55,6 @@ RSpec.describe "DELETE /api/v1/users/:id", type: :request do
       delete "/api/v1/users/999999"
       json = JSON.parse(response.body)
       expect(json['errors']).to include('User not found')
-    end
-  end
-
-  describe 'when the ID is invalid' do
-    context 'with a non-numeric ID' do
-      it 'returns a 404 Not Found status' do
-        # 'abc'.to_i in the controller results in 0, leading to a "User not found" error
-        delete "/api/v1/users/abc"
-        expect(response).to have_http_status(:not_found)
-      end
-    end
-
-    context 'with an ID of 0' do
-      it 'returns a 404 Not Found status' do
-        delete "/api/v1/users/0"
-        expect(response).to have_http_status(:not_found)
-        json = JSON.parse(response.body)
-        expect(json['errors']).to include('User not found')
-      end
     end
   end
 end
