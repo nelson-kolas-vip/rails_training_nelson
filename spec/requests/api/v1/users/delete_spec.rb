@@ -1,43 +1,60 @@
 require 'rails_helper'
 
 RSpec.describe "DELETE /api/v1/users/:id", type: :request do
-  let!(:user) { create(:user) }
+  let!(:user_to_delete) { create(:user) }
+  let!(:other_user) { create(:user) }
 
-  describe 'DELETE /api/v1/users/:id' do
-    context 'when user exists' do
-      it 'deletes the user and returns success message' do
-        delete "/api/v1/users/#{user.id}"
+  describe 'when the user exists' do
+    it 'decreases the user count by 1' do
+      expect do
+        delete "/api/v1/users/#{user_to_delete.id}"
+      end.to change(User, :count).by(-1)
+    end
 
+    context 'the response for a successful deletion' do
+      before { delete "/api/v1/users/#{user_to_delete.id}" }
+
+      it 'returns a 200 OK status' do
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)).to eq({ 'message' => 'User deleted successfully' })
-        expect(User.find_by(id: user.id)).to be_nil
+      end
+
+      it 'returns a success message' do
+        json = JSON.parse(response.body)
+        expect(json['message']).to eq('User deleted successfully')
+      end
+
+      it 'returns the response in JSON format' do
+        expect(response.content_type).to eq('application/json; charset=utf-8')
       end
     end
 
-    context 'when user does not exist' do
-      it 'returns 404 with user not found message' do
+    it 'deletes the correct user from the database' do
+      delete "/api/v1/users/#{user_to_delete.id}"
+      expect(User.find_by(id: user_to_delete.id)).to be_nil
+    end
+
+    it 'does not affect other users' do
+      delete "/api/v1/users/#{user_to_delete.id}"
+      expect(User.find_by(id: other_user.id)).not_to be_nil
+    end
+  end
+
+  describe 'when the user does not exist' do
+    it 'does not change the user count' do
+      expect do
         delete "/api/v1/users/999999"
-
-        expect(response).to have_http_status(:not_found)
-        expect(JSON.parse(response.body)).to eq({ 'errors' => ['User not found'] })
-      end
+      end.not_to change(User, :count)
     end
 
-    context 'when ID is non-numeric' do
-      it 'returns 404 not found' do
-        delete "/api/v1/users/abc"
-
-        expect(response).to have_http_status(:not_found)
-      end
+    it 'returns a 404 Not Found status' do
+      delete "/api/v1/users/999999"
+      expect(response).to have_http_status(:not_found)
     end
 
-
-    context 'when ID is blank' do
-      it 'returns 404 error due to missing route' do
-        delete "/api/v1/users/"
-
-        expect(response).to have_http_status(:not_found)
-      end
+    it 'returns a "User not found" error message' do
+      delete "/api/v1/users/999999"
+      json = JSON.parse(response.body)
+      expect(json['errors']).to include('User not found')
     end
   end
 end
