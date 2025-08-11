@@ -1,0 +1,46 @@
+<div class="card p-4 mx-auto" style="max-width: 600px;">
+  <div class="card-body">
+    <h5 class="card-title text-center mb-4">
+      <%= @table.new_record? ? "Create New Table" : "Edit Table #%s" % @table.table_number %>
+    </h5>
+    
+    <% if @table.errors.any? %>
+      <div class="alert alert-danger">
+        <h5 class="alert-heading">Please fix the following errors:</h5>
+        <ul>
+          <% @table.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <%= form_with model: [@restaurant, @table], local: true, data: { turbo: false } do |f| %>
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <%= f.label :table_number, class: "form-label" %>
+          <%= f.number_field :table_number, class: "form-control", required: true, min: 1 %>
+        </div>
+
+        <div class="col-md-6">
+          <%= f.label :seating_capacity, class: "form-label" %>
+          <%= f.number_field :seating_capacity, class: "form-control", required: true, min: 1, max: 12 %>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <%= f.label :status, class: "form-label" %>
+          <%= f.select :status, Table.statuses.keys.map { |s| [s.titleize, s] }, {}, class: "form-select" %>
+        </div>
+      </div>
+
+      <div class="d-grid gap-2">
+        <%= f.submit(@table.new_record? ? "Create Table" : "Update Table", class: "btn btn-dark") %>
+      </div>
+      <div class="mt-3 d-grid gap-2">
+        <%= link_to "Back to Tables List", restaurant_tables_path(@restaurant), class: "btn btn-secondary" %>
+    </div>
+    <% end %>
+  </div>
+</div>

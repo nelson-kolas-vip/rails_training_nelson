@@ -1,0 +1,11 @@
+<div class="container mt-5 restaurant-card " data: { turbo: false }>
+  <% if flash[:notice] %>
+    <div class="alert alert-success"><%= flash[:notice] %></div>
+  <% elsif flash[:alert] %>
+    <div class="alert alert-danger"><%= flash[:alert] %></div>
+  <% end %>
+
+  <h2 class="mb-4 text-center">Add New Table for <%= @restaurant.name %></h2>
+
+  <%= render "form" %>
+</div>
