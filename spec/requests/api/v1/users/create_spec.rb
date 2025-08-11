@@ -17,16 +17,21 @@ RSpec.describe 'POST /api/v1/users', type: :request do
     }
   end
 
-  let(:headers) do
-    { "CONTENT_TYPE" => "application/json" }
+  # Create a token to be used for authorization
+  let!(:token) { create(:token) }
+  let(:auth_headers) do
+    {
+      "CONTENT_TYPE" => "application/json",
+      "Authorization" => token.value
+    }
   end
 
   describe 'with valid params' do
-    before { post '/api/v1/users', params: valid_attributes.to_json, headers: headers }
+    before { post '/api/v1/users', params: valid_attributes.to_json, headers: auth_headers }
 
     it 'creates a new user' do
       expect do
-        post '/api/v1/users', params: valid_attributes.merge(email: Faker::Internet.unique.email).to_json, headers: headers
+        post '/api/v1/users', params: valid_attributes.merge(email: Faker::Internet.unique.email).to_json, headers: auth_headers
       end.to change(User, :count).by(1)
     end
 
@@ -48,7 +53,7 @@ RSpec.describe 'POST /api/v1/users', type: :request do
   describe 'with invalid params' do
     def post_with_invalid_attributes(attributes)
       expect do
-        post '/api/v1/users', params: attributes.to_json, headers: headers
+        post '/api/v1/users', params: attributes.to_json, headers: auth_headers
       end.not_to change(User, :count)
       expect(response).to have_http_status(:unprocessable_entity)
     end
@@ -107,8 +112,6 @@ RSpec.describe 'POST /api/v1/users', type: :request do
       end
 
       it 'fails for a non-integer age' do
-        # This assumes your interaction or model handles type validation.
-        # Apipie might catch this earlier depending on configuration.
         post_with_invalid_attributes(valid_attributes.merge(age: 'thirty'))
         expect(JSON.parse(response.body)['errors']).to include('Age is not a valid integer')
       end

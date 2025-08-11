@@ -1,8 +1,8 @@
 module Api
   module V1
-    class UsersController < ActionController::API
-      include Apipie::DSL::Concern
-      skip_before_action :verify_authenticity_token, raise: false
+    class UsersController < ApplicationController
+      skip_before_action :verify_authenticity_token
+      before_action :authenticate_admin!
       def_param_group :user_base do
         property :id, Integer, desc: 'User ID'
         property :first_name, String, desc: 'First name'
@@ -15,17 +15,15 @@ module Api
       end
 
       def_param_group :user_input do
-        param :first_name, String, desc: 'First name of the user', required: true
-        param :last_name, String, desc: 'Last name of the user', required: true
-        param :email, String, desc: 'Email address of the user', required: true
-        param :phone_number, String, desc: 'Phone number of the user', required: true
-        param :password, String, desc: 'Password for the user', required: true
-        param :password_confirmation, String, desc: 'Password confirmation', required: true
-        param :age, Integer, desc: 'Age of the user', required: true
-        param :date_of_birth, String, desc: 'Date of birth (YYYY-MM-DD)', required: true
+        param :first_name, String, desc: 'First name of the user', required: false
+        param :last_name, String, desc: 'Last name of the user', required: false
+        param :email, String, desc: 'Email address of the user', required: false
+        param :phone_number, String, desc: 'Phone number of the user', required: false
+        param :password, String, desc: 'Password for the user', required: false
+        param :password_confirmation, String, desc: 'Password confirmation', required: false
+        param :age, Integer, desc: 'Age of the user', required: false
+        param :date_of_birth, String, desc: 'Date of birth (YYYY-MM-DD)', required: false
       end
-
-      # --- API Endpoints ---
 
       api :GET, '/api/v1/users', 'Returns a list of users with optional filters'
       param :first_name, String, desc: 'Filter by first name (partial match)', required: false
