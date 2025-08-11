@@ -21,8 +21,15 @@ module Api
         property :last_name, String, desc: 'Last name'
         property :email, String, desc: 'Email'
         property :created_at, String, desc: 'Created at'
+        property :first_name, String, desc: 'First name'
+        property :last_name, String, desc: 'Last name'
+        property :email, String, desc: 'Email'
+        property :created_at, String, desc: 'Created at'
       end
 
+      # Index
+      api :GET, '/api/v1/users', 'List all users'
+      returns array_of: :user, code: 200, desc: 'List of users'
       # Index
       api :GET, '/api/v1/users', 'List all users'
       returns array_of: :user, code: 200, desc: 'List of users'
@@ -33,10 +40,14 @@ module Api
 
       # Create
       api :POST, '/api/v1/users', 'Create a new user'
+      # Create
+      api :POST, '/api/v1/users', 'Create a new user'
       param_group :user_input
+      returns code: 201, desc: 'User created successfully' do
       returns code: 201, desc: 'User created successfully' do
         param_group :user
       end
+      error code: 422, desc: 'Validation failed'
       error code: 422, desc: 'Validation failed'
       def create
         outcome = Api::V1::CreateUserInteraction.run(user_params)
@@ -106,6 +117,11 @@ module Api
       private
 
       def user_params
+        params.permit(:first_name, :last_name, :email, :phone_number, :password, :password_confirmation, :age, :date_of_birth)
+      end
+
+      def user_update_params
+        params.permit(:first_name, :last_name, :email, :phone_number, :password, :password_confirmation, :age, :date_of_birth)
         params.permit(:first_name, :last_name, :email, :phone_number, :password, :password_confirmation, :age, :date_of_birth)
       end
 

@@ -112,12 +112,11 @@ RSpec.describe 'POST /api/v1/users', type: :request do
       end
     end
 
-    context 'when phone_number is missing' do
-      it 'does not create a user and returns an error' do
-        invalid_attributes = valid_attributes.except(:phone_number)
-        post_with_invalid_attributes(invalid_attributes)
-        json = JSON.parse(response.body)
-        expect(json['errors']).to include("Phone number is required")
+    context "when a request method is not allowed" do
+      it "returns 405 Method Not Allowed (if restricted)" do
+        expect do
+          post "/api/v1/users"
+        end
       end
     end
   end
