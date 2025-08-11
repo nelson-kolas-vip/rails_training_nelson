@@ -1,11 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe 'GET /api/v1/users/:id', type: :request do
-  # Using let! to ensure the user is created before any test runs.
   let!(:user) { create(:user, first_name: 'John', last_name: 'Doe') }
   let(:user_id) { user.id }
-
-  # --- Positive Test Cases ---
 
   describe 'when the user exists' do
     before { get "/api/v1/users/#{user_id}" }
@@ -34,8 +31,6 @@ RSpec.describe 'GET /api/v1/users/:id', type: :request do
     end
   end
 
-  # --- Negative Test Cases ---
-
   describe 'when the user does not exist' do
     let(:non_existent_user_id) { user.id + 100 }
 
@@ -56,7 +51,6 @@ RSpec.describe 'GET /api/v1/users/:id', type: :request do
       before { get '/api/v1/users/invalid-id' }
 
       it 'returns a 404 Not Found status' do
-        # This is because 'invalid-id'.to_i results in 0, and User.find_by(id: 0) is nil
         expect(response).to have_http_status(:not_found)
       end
 
