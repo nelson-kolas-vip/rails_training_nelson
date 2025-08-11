@@ -68,13 +68,17 @@ end
 
 # Added by me
 # gem 'haml-rails'
-gem 'active_model_serializers'
+
 gem 'bcrypt'
 gem 'devise'
 gem 'dotenv-rails'
 
 # Added on OS-65
+gem 'active_model_serializers'
 gem 'apipie-rails'
+
+# Added on OS-66
+gem 'active_interaction'
 
 group :development, :test do
   gem 'rubocop', require: false
