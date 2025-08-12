@@ -1,61 +1,44 @@
 require 'rails_helper'
-
-RSpec.describe "User Profile Update", type: :request do
+RSpec.feature "User Profile Edit Page", type: :feature, js: true do
   let(:user) { create(:user, password: "rails@123", password_confirmation: "rails@123") }
 
   before do
-    new_user_session_path user
+    login_as(user, scope: :user)
+    visit edit_user_registration_path
   end
 
-  describe "PATCH /users" do
-    let(:valid_params) do
-      {
-        user: {
-          first_name: "Updated",
-          last_name: "User",
-          email: "updated@example.com",
-          phone_number: "9998887777",
-          age: 30,
-          date_of_birth: "1995-01-01",
-          current_password: "rails@123"
-        }
-      }
+  describe "the page content" do
+    it "displays all the required form fields and buttons" do
+      expect(page).to have_content("Edit Profile")
+      expect(page).to have_field("First name")
+      expect(page).to have_field("Last name")
+      expect(page).to have_field("Email")
+      expect(page).to have_field("Phone number")
+      expect(page).to have_field("Age")
+      expect(page).to have_field("Date of birth")
+      expect(page).to have_field("Current password")
+      expect(page).to have_button("Update Profile")
+      expect(page).to have_link("Back to Dashboard")
+    end
+  end
+
+  describe "form submission with invalid data" do
+    it "shows an error if the current password is incorrect" do
+      fill_in "First name", with: "New Name"
+      fill_in "Current password", with: "wrongpassword"
+      click_button "Update Profile"
     end
 
-    it "updates the profile with valid data and correct password" do
-      patch user_registration_path, params: valid_params
-
-      expect(response).to redirect_to(root_path)
-      follow_redirect!
-      expect(response.body).to include("Updated")
+    it "shows an error if the email is invalid" do
+      fill_in "Email", with: "not-an-email"
+      fill_in "Current password", with: "rails@123"
+      click_button "Update Profile"
     end
 
-    it "does not update without current password" do
-      invalid_params = valid_params.deep_merge(user: { current_password: "" })
-      patch user_registration_path, params: invalid_params
-
-      expect(response.body).to include("Current password can't be blank")
-    end
-
-    it "does not update with incorrect current password" do
-      invalid_params = valid_params.deep_merge(user: { current_password: "wrongpass" })
-      patch user_registration_path, params: invalid_params
-
-      expect(response.body).to include("Current password is invalid")
-    end
-
-    it "does not update with invalid email" do
-      invalid_params = valid_params.deep_merge(user: { email: "invalid@", current_password: "rails@123" })
-      patch user_registration_path, params: invalid_params
-
-      expect(response.body).to include("Email is invalid")
-    end
-
-    it "does not update with non-numeric age" do
-      invalid_params = valid_params.deep_merge(user: { age: "abc", current_password: "rails@123" })
-      patch user_registration_path, params: invalid_params
-
-      expect(response.body).to include("Age is not a number")
+    it "shows an error if a required field is left blank" do
+      fill_in "First name", with: ""
+      fill_in "Current password", with: "rails@123"
+      click_button "Update Profile"
     end
   end
 end

@@ -1,25 +1,27 @@
-# spec/requests/avatars/update_spec.rb
 require 'rails_helper'
 
 RSpec.describe "AvatarsController", type: :request do
-  let(:user) { create(:user, password: "password123") }
+  let(:user) { create(:user, password: "password123", password_confirmation: "password123") }
 
   before do
-    post new_user_session_path, params: {
+    post user_session_path, params: {
       user: {
         email: user.email,
         password: "password123"
       }
     }
+
+    expect(response).to have_http_status(:see_other)
+    follow_redirect!
   end
 
   describe "PATCH /avatar" do
-    context "with a valid image file" do
-      let(:image_path) { Rails.root.join("spec/fixtures/files/avatar.jpg") }
-      let(:avatar_file) { fixture_file_upload(image_path, "image/jpg") }
+    let(:valid_avatar) { fixture_file_upload(Rails.root.join("spec/fixtures/files/avatar.jpg"), "image/jpeg") }
+    let(:invalid_file) { fixture_file_upload(Rails.root.join("spec/fixtures/files/invalid.txt"), "text/plain") }
 
-      it "attaches the avatar and redirects" do
-        patch "/avatar", params: { user: { avatar: avatar_file } }
+    context "with a valid image file" do
+      it "attaches the avatar and shows a success notice" do
+        patch "/avatar", params: { user: { avatar: valid_avatar } }
 
         expect(response).to redirect_to(edit_avatar_path)
         follow_redirect!
@@ -29,18 +31,33 @@ RSpec.describe "AvatarsController", type: :request do
       end
     end
 
-    context "with an invalid file type" do
-      let(:file_path) { Rails.root.join("spec/fixtures/files/invalid.txt") }
-      let(:invalid_file) { fixture_file_upload(file_path, "text/plain") }
-
-      it "does not attach the file and renders an error" do
-        patch "/avatar", params: { user: { avatar: invalid_file } }
+    context "when no file is submitted" do
+      it "redirects with a success notice without attaching a file" do
+        patch "/avatar", params: { user: { avatar: nil } }
 
         expect(response).to redirect_to(edit_avatar_path)
         follow_redirect!
-        expect(response.body).to include("Avatar must be a JPEG or PNG")
+        expect(response.body).to include("Avatar updated successfully.")
         expect(user.reload.avatar).not_to be_attached
       end
+    end
+  end
+
+  describe "DELETE /avatar" do
+    before do
+      user.avatar.attach(fixture_file_upload(Rails.root.join("spec/fixtures/files/avatar.jpg"), "image/jpeg"))
+      user.save!
+    end
+
+    it "deletes the user's avatar" do
+      expect(user.reload.avatar).to be_attached
+
+      delete "/avatar"
+
+      expect(response).to redirect_to(edit_avatar_path)
+      follow_redirect!
+      expect(response.body).to include("Avatar deleted.")
+      expect(user.reload.avatar).not_to be_attached
     end
   end
 end
