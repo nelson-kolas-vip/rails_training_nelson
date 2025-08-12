@@ -1,7 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe "GET /api/v1/users with filters", type: :request do
-  let!(:token) { Token.create }
+  let!(:token) { create(:token) }
+  let(:auth_headers) { { 'Authorization' => token.value } }
 
   context "when filtering by first_name" do
     let!(:nelson1) { create(:user, first_name: "Nelson") }
@@ -9,7 +10,7 @@ RSpec.describe "GET /api/v1/users with filters", type: :request do
     let!(:other)   { create(:user, first_name: "Samson") }
 
     it "returns users matching first_name" do
-      get "/api/v1/users", params: { first_name: "Nelson" }, headers: { "Authorization" => token.value }
+      get "/api/v1/users", params: { first_name: "Nelson" }, headers: auth_headers
       json = JSON.parse(response.body)
       expect(json.size).to eq(2)
       expect(json.map { |u| u["first_name"] }.uniq).to eq(["Nelson"])
@@ -22,7 +23,7 @@ RSpec.describe "GET /api/v1/users with filters", type: :request do
     let!(:u3) { create(:user, last_name: "Norris") }
 
     it "returns users matching last_name" do
-      get "/api/v1/users", params: { last_name: "Doe" }, headers: { "Authorization" => token.value }
+      get "/api/v1/users", params: { last_name: "Doe" }, headers: auth_headers
       json = JSON.parse(response.body)
       expect(json.size).to eq(2)
       expect(json.map { |u| u["last_name"] }.uniq).to eq(["Doe"])
@@ -34,7 +35,7 @@ RSpec.describe "GET /api/v1/users with filters", type: :request do
     let!(:user2) { create(:user, email: "jane@example.com") }
 
     it "returns user with exact email match" do
-      get "/api/v1/users", params: { email: "john@example.com" }, headers: { "Authorization" => token.value }
+      get "/api/v1/users", params: { email: "john@example.com" }, headers: auth_headers
       json = JSON.parse(response.body)
       expect(json.size).to eq(1)
       expect(json.first["email"]).to eq("john@example.com")
@@ -46,7 +47,7 @@ RSpec.describe "GET /api/v1/users with filters", type: :request do
     let!(:john_milton) { create(:user, first_name: "John", last_name: "Milton", email: "milton@example.com") }
 
     it "returns users matching all fields" do
-      get "/api/v1/users", params: { first_name: "John", last_name: "Doe" }, headers: { "Authorization" => token.value }
+      get "/api/v1/users", params: { first_name: "John", last_name: "Doe" }, headers: auth_headers
       json = JSON.parse(response.body)
       expect(json.size).to eq(1)
       expect(json.first["first_name"]).to eq("John")
@@ -58,9 +59,40 @@ RSpec.describe "GET /api/v1/users with filters", type: :request do
     before { create(:user, first_name: "Alice") }
 
     it "returns an empty array" do
-      get "/api/v1/users", params: { first_name: "Bob" }, headers: { "Authorization" => token.value }
+      get "/api/v1/users", params: { first_name: "Bob" }, headers: auth_headers
       json = JSON.parse(response.body)
       expect(json).to eq([])
+    end
+  end
+
+  context "with edge cases and negative filter scenarios" do
+    let!(:user_case) { create(:user, first_name: "Peter", email: "PETER@EXAMPLE.COM") }
+
+    it "is case-insensitive when filtering by first_name" do
+      get "/api/v1/users", params: { first_name: "peter" }, headers: auth_headers
+      json = JSON.parse(response.body)
+      expect(json.size).to eq(1)
+      expect(json.first['first_name']).to eq("Peter")
+    end
+
+    it "is case-insensitive when filtering by email" do
+      get "/api/v1/users", params: { email: "peter@example.com" }, headers: auth_headers
+      json = JSON.parse(response.body)
+      expect(json.size).to eq(1)
+      expect(json.first['email'].downcase).to eq("peter@example.com")
+    end
+
+    it "returns an empty array for conflicting filters" do
+      get "/api/v1/users", params: { first_name: "Peter", last_name: "Jones" }, headers: auth_headers
+      json = JSON.parse(response.body)
+      expect(json).to be_empty
+    end
+
+    it "ignores a filter for a non-existent attribute" do
+      get "/api/v1/users", params: { non_existent_param: "some_value" }, headers: auth_headers
+      json = JSON.parse(response.body)
+      expect(response).to have_http_status(:ok)
+      expect(json.size).to eq(User.count)
     end
   end
 end

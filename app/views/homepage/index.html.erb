@@ -15,7 +15,8 @@
     <!-- Right Side Links -->
     <div class="d-flex">
       <% if user_signed_in? %>
-        <p class="nav-link text-white m-0"><%= current_user.first_name.presence+" "+current_user.last_name.presence || current_user.email%></p>
+        <%# This line is corrected to safely handle missing names %>
+        <p class="nav-link text-white m-0"><%= [current_user.first_name, current_user.last_name].compact.join(' ').presence || current_user.email %></p>
       <% else %>
         <%= link_to 'Sign Up', new_user_registration_path, class: "nav-link text-white me-2" %>
         <%= link_to 'Sign In', new_user_session_path, class: "nav-link text-white ms-2" %>
@@ -81,7 +82,8 @@
 
 <div class="container mt-5 text-center">
   <% if user_signed_in? %>
-    <h1>Welcome back, <%= current_user.first_name.presence || current_user.email %>!</h1>
+    <%# This line is also corrected for consistency and safety %>
+    <h1>Welcome back, <%= [current_user.first_name, current_user.last_name].compact.join(' ').presence || current_user.email %>!</h1>
   <% else %>
     <h1>Login to Continue</h1>
   <% end %>
