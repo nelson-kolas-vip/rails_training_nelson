@@ -15,7 +15,16 @@
     <!-- Right Side Links -->
     <div class="d-flex">
       <% if user_signed_in? %>
-        <p class="nav-link text-white m-0"><%= current_user.first_name.presence+" "+current_user.last_name.presence || current_user.email%></p>
+        <div class="d-flex align-items-center gap-2">
+          <% if current_user.avatar.attached? %>
+            <%= image_tag url_for(current_user.avatar), class: "rounded-circle shadow-sm", width: 32, height: 32, alt: "Avatar" %>
+          <% else %>
+            <%= image_tag "def.jpg", class: "rounded-circle shadow-sm", width: 32, height: 32, alt: "Default Avatar" %>
+          <% end %>
+          <p class="nav-link text-white m-0">
+            <%= current_user.first_name.presence&.concat(" ")&.concat(current_user.last_name.presence) || current_user.email %>
+          </p>
+        </div>
       <% else %>
         <%= link_to 'Sign Up', new_user_registration_path, class: "nav-link text-white me-2" %>
         <%= link_to 'Sign In', new_user_session_path, class: "nav-link text-white ms-2" %>
@@ -44,7 +53,7 @@
           <div id="profileCollapse" class="accordion-collapse collapse" aria-labelledby="profileHeading" data-bs-parent="#sidebarAccordion">
             <div class="accordion-body">
               <ul class="nav flex-column">
-                <li class="nav-item"><a href="#" class="nav-link text-white">Update Avatar</a></li>
+                <%= link_to "Update Avatar", edit_avatar_path, class: "nav-link text-white" %>
                 <li class="nav-item"><a href="#" class="nav-link text-white">Update Personal Data</a></li>
               </ul>
             </div>
@@ -81,7 +90,8 @@
 
 <div class="container mt-5 text-center">
   <% if user_signed_in? %>
-    <h1>Welcome back, <%= current_user.first_name.presence || current_user.email %>!</h1>
+    <%# This line is also corrected for consistency and safety %>
+    <h1>Welcome back, <%= [current_user.first_name, current_user.last_name].compact.join(' ').presence || current_user.email %>!</h1>
   <% else %>
     <h1>Login to Continue</h1>
   <% end %>
