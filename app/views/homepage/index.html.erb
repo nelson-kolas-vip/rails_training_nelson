@@ -94,7 +94,8 @@
 
 <div class="container mt-5 text-center">
   <% if user_signed_in? %>
-    <h1>Welcome back, <%= current_user.first_name.presence || current_user.email %>!</h1>
+    <%# This line is also corrected for consistency and safety %>
+    <h1>Welcome back, <%= [current_user.first_name, current_user.last_name].compact.join(' ').presence || current_user.email %>!</h1>
   <% else %>
     <h1>Login to Continue</h1>
   <% end %>
