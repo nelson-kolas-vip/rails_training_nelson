@@ -5,7 +5,7 @@
         <div class="card-body">
           <h2 class="mb-4 text-center text-primary">Sign In</h2>
 
-          <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+          <%= form_for(resource, as: resource_name, url: session_path(resource_name, role: params[:role])) do |f| %>
             <% if flash[:alert] %>
               <div class="alert alert-danger"><%= flash[:alert] %></div>
             <% end %>
@@ -34,6 +34,8 @@
               <%= f.check_box :remember_me, class: "form-check-input" %>
               <%= f.label :remember_me, class: "form-check-label" %>
             </div>
+
+            <%= hidden_field_tag :role, params[:role] %>
 
             <div class="d-grid gap-2">
               <%= f.submit "Sign In", class: "btn btn-primary btn-block" %>
